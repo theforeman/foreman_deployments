@@ -1,0 +1,52 @@
+module ForemanDeployments
+  class Engine < ::Rails::Engine
+
+    config.autoload_paths += Dir["#{config.root}/app/controllers/foreman_deployments/concerns"]
+    config.autoload_paths += Dir["#{config.root}/app/helpers/foreman_deployments/concerns"]
+    config.autoload_paths += Dir["#{config.root}/app/models/foreman_deployments/concerns"]
+    config.autoload_paths += Dir["#{config.root}/app/overrides"]
+
+    # Add any db migrations
+    initializer "foreman_deployments.load_app_instance_data" do |app|
+      app.config.paths['db/migrate'] += ForemanDeployments::Engine.paths['db/migrate'].existent
+    end
+
+    initializer 'foreman_deployments.register_plugin', :after => :finisher_hook do |app|
+      Foreman::Plugin.register :foreman_deployments do
+        requires_foreman '>= 1.8'
+
+        # Add permissions
+        security_block :deployments do |map|
+          map.permission :view_deployments,     {:deployments => [:index, :show, :auto_complete_search],
+                                                 :"foreman_deployments/api/v2/deployments" => [:index, :show]}
+          map.permission :create_deployments,   {:deployments => [:new, :create],
+                                                 :"foreman_deployments/api/v2/deployments" => [:create]}
+          map.permission :edit_deployments,     {:deployments => [:edit, :update],
+                                                 :"foreman_deployments/api/v2/deployments" => [:update]}
+          map.permission :destroy_deployments,  {:deployments => [:destroy],
+                                                 :"foreman_deployments/api/v2/deployments" => [:destroy]}
+        end
+
+        # Add a new role called 'Discovery' if it doesn't exist
+        # role "ForemanDeployments", [:view_foreman_deployments]
+      end
+    end
+
+    initializer "foreman_deployments.apipie" do
+      Apipie.configuration.api_controllers_matcher << "#{ForemanDeployments::Engine.root}/app/controllers/foreman_deployments/api/v2/*.rb"
+      Apipie.configuration.checksum_path += ['/foreman_deployments/api/']
+    end
+
+    #Include concerns in this config.to_prepare block
+    config.to_prepare do
+      # include concerns
+    end
+
+    rake_tasks do
+      Rake::Task['db:seed'].enhance do
+        ForemanDeployments::Engine.load_seed
+      end
+    end
+
+  end
+end
