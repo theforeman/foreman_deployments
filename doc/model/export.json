@@ -6,7 +6,7 @@
     }
     // other stacks
   ],
-  "param_resources": [
+  "parameter_resources": [
     {
       "id": "db_password",
       "stack": "db",
@@ -22,7 +22,7 @@
       "hostgroup_resource": "db"
     }
   ],
-  "param_override_resources": [
+  "parameter_override_resources": [
     {
       "id": "password_override",
       "stack": "db",

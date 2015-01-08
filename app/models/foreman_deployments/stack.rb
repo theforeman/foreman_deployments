@@ -2,12 +2,10 @@ module ForemanDeployments
   class Stack < ActiveRecord::Base
     include Authorizable
     include Taxonomix
+    # TODO validate taxonomy, in parent context, it has to be the same something like that
+    # TODO add child resource to be able to compose stacks
 
-    # TODO(pchalupa) probably better to use acyclic graph, use EnsureNoCycle
-    # TODO(pchalupa) validate taxonomy, in parent context, it has to be the same something like that
-
-    belongs_to :parent, :class_name => 'Stack'
-    has_many :children, :class_name => 'Stack', :foreign_key => 'parent_id'
+    self.table_name = 'foreman_deployments_stacks'
 
     validates :name, :presence => true
 
