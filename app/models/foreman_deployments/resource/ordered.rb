@@ -15,7 +15,7 @@ module ForemanDeployments
         # private
         has_many :depended_by_dependency,
                  class_name:  'ForemanDeployments::Resource::Dependency',
-                 foreign_key: 'depend_on_id'
+                 foreign_key: 'depends_on_id'
 
         has_many :depends_on_dependency,
                  class_name:  'ForemanDeployments::Resource::Dependency',

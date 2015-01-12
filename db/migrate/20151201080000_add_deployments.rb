@@ -21,11 +21,11 @@ class AddDeployments < ActiveRecord::Migration
       t.string 'value'
       t.integer 'min'
       t.integer 'max'
-      t.timestamps
 
+      t.references :stack
       t.references :hostgroup
       t.references :host
-      t.references :puppetclass
+      t.references :puppet_class
       t.references :parameter
     end
 

@@ -7,8 +7,11 @@ module ForemanDeployments
 
     self.table_name = 'foreman_deployments_stacks'
 
-    validates :name, :presence => true
+    has_many :resources,
+             class_name: 'ForemanDeployments::Resource::Abstract',
+             dependent: :destroy
 
     scoped_search :on => :name, :complete_value => :true
+    validates :name, :presence => true
   end
 end

@@ -6,6 +6,8 @@ module ForemanDeployments
       has_many :puppetclasses, class_name: 'ForemanDeployments::Resource::PuppetClass'
 
       validates :name, presence: true
+
+      # TODO show deployment relation in the hostgroup table
     end
   end
 end

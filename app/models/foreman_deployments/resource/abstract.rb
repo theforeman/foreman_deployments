@@ -8,8 +8,6 @@ module ForemanDeployments
       belongs_to :stack, :class_name => 'ForemanDeployments::Stack'
       ensure_association_present :stack
 
-      validates :name, :presence => true
-
       scoped_search :on => :name, :complete_value => :true
     end
   end

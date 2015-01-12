@@ -1,8 +1,6 @@
 module ForemanDeployments
   module Resource
     class Host < Abstract
-      include Ordered
-
       belongs_to :hostgroup, class_name: 'ForemanDeployments::Resource::Hostgroup'
       ensure_association_present :hostgroup
 

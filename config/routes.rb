@@ -33,7 +33,9 @@ Rails.application.routes.draw do
         end
 
         resources :deployments, :except => [:new, :edit]
-        resources :stacks, :except => [:new, :edit]
+        resources :stacks, :except => [:new, :edit] do
+          get 'export', on: :member
+        end
       end
     end
   end

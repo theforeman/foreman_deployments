@@ -11,7 +11,7 @@ module ForemanDeployments
         end
 
         before_filter :find_optional_nested_object
-        before_filter :find_resource, :only => %w{show update destroy}
+        before_filter :find_resource, :only => %w{show export update destroy}
 
 
         api :GET, "/stacks/", N_("List all stacks")
@@ -28,6 +28,12 @@ module ForemanDeployments
         param :id, :identifier, :required => true
 
         def show
+        end
+
+        api :GET, "/stacks/:id/export", N_("Export a stack")
+        param :id, :identifier, :required => true
+
+        def export
         end
 
         def_param_group :stack do
@@ -69,6 +75,15 @@ module ForemanDeployments
 
         def resource_class
           ForemanDeployments::Stack
+        end
+
+        def action_permission
+          case params[:action]
+          when 'export'
+            :view
+          else
+            super
+          end
         end
 
       end

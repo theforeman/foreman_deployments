@@ -16,15 +16,24 @@ module ForemanDeployments
         requires_foreman '>= 1.8'
 
         # Add permissions
-        security_block :deployments do |map|
-          map.permission :view_deployments,     {:deployments => [:index, :show, :auto_complete_search],
-                                                 :"foreman_deployments/api/v2/deployments" => [:index, :show]}
-          map.permission :create_deployments,   {:deployments => [:new, :create],
-                                                 :"foreman_deployments/api/v2/deployments" => [:create]}
-          map.permission :edit_deployments,     {:deployments => [:edit, :update],
-                                                 :"foreman_deployments/api/v2/deployments" => [:update]}
-          map.permission :destroy_deployments,  {:deployments => [:destroy],
-                                                 :"foreman_deployments/api/v2/deployments" => [:destroy]}
+        security_block :foreman_deployments do |map|
+          map.permission :view_deployments,
+                         { :"foreman_deployments/api/v2/deployments" => [:index, :show] }
+          map.permission :create_deployments,
+                         { :"foreman_deployments/api/v2/deployments" => [:create] }
+          map.permission :edit_deployments,
+                         { :"foreman_deployments/api/v2/deployments" => [:update] }
+          map.permission :destroy_deployments,
+                         { :"foreman_deployments/api/v2/deployments" => [:destroy] }
+
+          map.permission :view_foreman_deployments_stacks,
+                         { :"foreman_deployments/api/v2/stacks" => [:index, :show, :export] }
+          map.permission :create_stacks,
+                         { :"foreman_deployments/api/v2/stacks" => [:create] }
+          map.permission :edit_stacks,
+                         { :"foreman_deployments/api/v2/stacks" => [:update] }
+          map.permission :destroy_stacks,
+                         { :"foreman_deployments/api/v2/stacks" => [:destroy] }
         end
 
         # Add a new role called 'Discovery' if it doesn't exist
