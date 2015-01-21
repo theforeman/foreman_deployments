@@ -41,3 +41,4 @@
 
 -   `ParameterOverrideResource`'s optional value could be also done with children as it's
     with `ParameterResource`.
+-   TODO explore: Stacks could be inherited

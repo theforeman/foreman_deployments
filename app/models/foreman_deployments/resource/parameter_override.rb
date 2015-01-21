@@ -6,7 +6,7 @@ module ForemanDeployments
       ensure_association_present :puppet_class
 
       validates :name, presence: true
-      # validates :value
+      validates :value, optional: true
       # TODO does Parameter has a type defined? can be inferred later when deployment is configured
     end
   end

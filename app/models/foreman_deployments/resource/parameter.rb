@@ -5,7 +5,8 @@ module ForemanDeployments
 
       has_many :updates, class_name: 'ForemanDeployments::Resource::ParameterUpdate'
       validates :name, presence: true
-      # validates :value
+      validates :value, optional: true
+
     end
   end
 end

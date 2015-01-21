@@ -13,4 +13,6 @@ Gem::Specification.new do |s|
 
   s.files      = Dir["{app,config,db,lib}/**/*"] + ["LICENSE", "Rakefile", "README.md"]
   s.test_files = Dir["test/**/*"]
+
+  s.add_dependency 'foreman-tasks'
 end

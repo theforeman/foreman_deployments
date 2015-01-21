@@ -3,7 +3,7 @@ module ForemanDeployments
     class Dependency < ActiveRecord::Base
       extend EnsureAssociationPresent
 
-      self.table_name = 'foreman_deployments_resource_dependencies'
+      self.table_name = ForemanDeployments::TABLE_PREFIX + 'resource_dependencies'
 
       belongs_to :depended_by, class_name: 'ForemanDeployments::Resource::Abstract', foreign_key: 'depended_by_id'
       belongs_to :depends_on, class_name: 'ForemanDeployments::Resource::Abstract', foreign_key: 'depends_on_id'
