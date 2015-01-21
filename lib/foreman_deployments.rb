@@ -55,16 +55,21 @@ module ForemanDeployments
   end
 
   def self.test_config
-    stack              = create_test_stack
-    deployment         = Deployment.create! name: Time.now.to_s, stack: stack
-    hostgroup_resource = deployment.configurable_resources[Resource::Hostgroup][0]
+    stack      = create_test_stack
+    deployment = Deployment.create! name: Time.now.to_s, stack: stack
+
+    hostgroup_resource = deployment.configurable_resources[Resource::Hostgroup].first
     deployment.configure_resource hostgroup_resource, ::Hostgroup.find_by_name('base')
 
-    sleep 0.1
+    values = { 'password' => 'secret', 'url' => 'example.com:5432' }
+    deployment.configurable_resources[Resource::HostgroupParameter].each do |hostgroup_parameter_resource|
+      deployment.configure_resource hostgroup_parameter_resource, values.fetch(hostgroup_parameter_resource.name)
+    end
 
-    pp deployment.configurable_resources
-    pp deployment.configured_resources
-    nil
+    [deployment.configurable_resources, # all
+     deployment.configured_resources, # all
+     deployment.not_configured_resources, # empty
+     deployment.configuration_phase] # nil no more phase to configure
   end
 end
 

@@ -6,6 +6,11 @@ module ForemanDeployments
       belongs_to :hostgroup, class_name: 'ForemanDeployments::Resource::Hostgroup'
       ensure_association_present :hostgroup
 
+      has_many :associated_hostgroups_parameters,
+               foreign_key: :resource_id,
+               class_name:  'ForemanDeployments::DeploymentAssociations::HostgroupParameter'
+
+
       def self.configurable?
         true
       end
@@ -16,15 +21,25 @@ module ForemanDeployments
 
       # @override
       def self.configured_in(deployment)
-        where(id: 0) # TODO implement configured parameter detection
+        configurable(deployment.stack).
+            includes(:associated_hostgroups_parameters => :group_parameter).
+            where(DeploymentAssociations::HostgroupParameter.table_name => { deployment_id: deployment }).
+            where("#{::GroupParameter.table_name}.value IS NOT NULL")
       end
 
       def self.configure_after
         %w[ForemanDeployments::Resource::Hostgroup]
       end
 
-      def configure(deployment)
-        super # TODO implement
+      def configure(deployment, value)
+        group_parameter(deployment).update_attributes!(value: value)
+      end
+
+      def group_parameter(deployment)
+        DeploymentAssociations::HostgroupParameter.
+            where(resource_id: self, deployment_id: deployment).
+            first.
+            group_parameter
       end
 
       # TODO omit parameters already provided, or allow to define inherit instead a value

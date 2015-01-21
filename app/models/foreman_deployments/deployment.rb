@@ -51,7 +51,8 @@ module ForemanDeployments
 
     # @return [Class] type of the Resource::Abstract being configured, first not fully configured type of resources
     def configuration_phase
-      not_configured_resources.find { |_, resources| not resources.empty? }[0]
+      phase = not_configured_resources.find { |_, resources| not resources.empty? }
+      phase ? phase.first : nil
     end
 
     # @return [Class] all resource types needed to be configured in order in which they need to be configured
