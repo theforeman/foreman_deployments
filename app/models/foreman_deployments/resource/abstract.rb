@@ -36,8 +36,16 @@ module ForemanDeployments
       # @returns [Array<Class>] order of configurable resources
       def self.configuration_order
         # TODO maybe cache
-        Abstract.descendants.each_with_object(TSortHash.new) do |descendant, graph|
-          graph.update descendant => descendant.configure_after.map(&:constantize) if descendant.configurable?
+        Abstract.descendants.each_with_object(TSortHash.new { |h, k| h[k] = Set.new }) do |resource_class, graph|
+          if resource_class.configurable?
+            graph[resource_class] # create key record
+            resource_class.configure_after.map(&:constantize).each do |depended_resource_class|
+              graph[resource_class].add depended_resource_class
+            end
+            resource_class.configure_before.map(&:constantize).each do |dependent_resource_class|
+              graph[dependent_resource_class].add resource_class
+            end
+          end
         end.tsort
       end
 
@@ -50,8 +58,18 @@ module ForemanDeployments
         false
       end
 
-      # @override override and return on which types does this type depends, used in {.configuration_order}
+      # @override return true if the resource type allows configuration after it's phase passes
+      def self.out_of_phase?
+        false
+      end
+
+      # @override override and return which types does this type depends on, used in {.configuration_order}
       def self.configure_after
+        []
+      end
+
+      # @override override and return which types does depend on this type, used in {.configuration_order}
+      def self.configure_before
         []
       end
 
