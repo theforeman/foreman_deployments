@@ -109,7 +109,7 @@ module ForemanDeployments
         end
       end
 
-      # @override steps to be made on resource configuration
+      # @override steps to be made on resource configuration, must be idempotent
       def configure(deployment, *args)
         if self.class.configurable?
           raise NotImplementedError

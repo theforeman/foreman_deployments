@@ -36,7 +36,7 @@ module ForemanDeployments
     # @param *args matching `resource.configure` method header
     def configure_resource(resource, *args)
       starting_configuration_phase = configuration_phase
-      unless resource.is_a? starting_configuration_phase
+      unless can_be_configured? resource.class
         raise ArgumentError,
               "A resource of type #{resource.class} cannot be configured right now, #{starting_configuration_phase} is now being configured"
       end
@@ -61,6 +61,17 @@ module ForemanDeployments
     end
 
     private
+
+    def can_be_configured?(resource_class, current_phase = configuration_phase)
+      current_index        = current_phase.nil? ? Float::INFINITY : configuration_phases.index(current_phase)
+      resource_class_index = configuration_phases.index(resource_class)
+
+      if resource_class.out_of_phase?
+        current_index >= resource_class_index
+      else
+        current_index == resource_class_index
+      end
+    end
 
     def reduce_configuration_phases(&block)
       configuration_phases.reduce({}) do |hash, resource_class|

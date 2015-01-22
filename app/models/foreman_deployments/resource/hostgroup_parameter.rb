@@ -1,7 +1,6 @@
 module ForemanDeployments
   module Resource
 
-    # TODO abstract creation: before, configure
     class HostgroupParameter < Resource::Parameter
       belongs_to :hostgroup, class_name: 'ForemanDeployments::Resource::Hostgroup'
       ensure_association_present :hostgroup
@@ -12,6 +11,10 @@ module ForemanDeployments
 
 
       def self.configurable?
+        true
+      end
+
+      def self.out_of_phase?
         true
       end
 
@@ -36,10 +39,10 @@ module ForemanDeployments
       end
 
       def group_parameter(deployment)
-        DeploymentAssociations::HostgroupParameter.
+        dahp = DeploymentAssociations::HostgroupParameter.
             where(resource_id: self, deployment_id: deployment).
-            first.
-            group_parameter
+            first
+        dahp && dahp.group_parameter
       end
 
       # TODO omit parameters already provided, or allow to define inherit instead a value

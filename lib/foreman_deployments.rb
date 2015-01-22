@@ -2,8 +2,6 @@ require "algebrick"
 
 require "foreman_deployments/engine"
 
-# TODO add dependent destroy directives, use katello test to find all the associations without the option defined
-
 module ForemanDeployments
 
   TABLE_PREFIX = 'FD_'
@@ -39,7 +37,8 @@ module ForemanDeployments
             name:      'db-%3d',
             min:       1,
             max:       1,
-            hostgroup: hostgroup),
+            hostgroup: hostgroup,
+            stack:     stack),
         run1 = Resource::PuppetRun.new(
             host:  host,
             stack: stack),
@@ -54,9 +53,10 @@ module ForemanDeployments
     stack
   end
 
+  # FIXME turn this into tests!
   def self.test_config
     stack      = create_test_stack
-    deployment = Deployment.create! name: Time.now.to_s, stack: stack
+    deployment = Deployment.create! name: "deploy-#{stack.name}-#{rand(100)}", stack: stack
 
     hostgroup_resource = deployment.configurable_resources[Resource::Hostgroup].first
     deployment.configure_resource hostgroup_resource, ::Hostgroup.find_by_name('base')
@@ -73,4 +73,4 @@ module ForemanDeployments
   end
 end
 
-FD = ForemanDeployments
+FD = ForemanDeployments # TODO remove, just shortcut for rails console

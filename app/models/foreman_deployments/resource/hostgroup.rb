@@ -20,6 +20,10 @@ module ForemanDeployments
         true
       end
 
+      def self.out_of_phase?
+        true
+      end
+
       def self.configurable(stack)
         in_stack(stack).where(hostgroup_id: nil)
       end
@@ -34,13 +38,27 @@ module ForemanDeployments
         # do nothing
       end
 
-      def configure(deployment, parent)
-        hostgroup = ::Hostgroup.new name:      format('%s (%s)', name, deployment.name),
-                                    parent_id: parent
-        hostgroup.save! # TODO in transaction
-        DeploymentAssociations::Hostgroup.create! resource: self, deployment: deployment, hostgroup: hostgroup
+      # TODO dry
+      def hostgroup(deployment)
+        dahg = DeploymentAssociations::Hostgroup.
+            where(resource_id: self, deployment_id: deployment).
+            first
+        dahg && dahg.hostgroup
+      end
 
-        # TODO create all child hostgroups, missing association definition, after child stacks are added
+      def configure(deployment, parent)
+        hostgroup = hostgroup(deployment)
+
+        if hostgroup
+          hostgroup.update_attributes! parent_id: parent
+        else
+          hostgroup = ::Hostgroup.new name:      format('%s (%s)', name, deployment.name),
+                                      parent_id: parent
+          hostgroup.save! # TODO in transaction
+          DeploymentAssociations::Hostgroup.create! resource: self, deployment: deployment, hostgroup: hostgroup
+
+          # TODO create all child hostgroups, missing association definition, after child stacks are added
+        end
       end
 
     end
