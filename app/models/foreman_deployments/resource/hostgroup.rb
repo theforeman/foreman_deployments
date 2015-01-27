@@ -21,7 +21,7 @@ module ForemanDeployments
       end
 
       def self.out_of_phase?
-        true
+        false
       end
 
       def self.configurable(stack)
@@ -62,7 +62,8 @@ module ForemanDeployments
       end
 
       def configuration(deployment)
-        [hostgroup(deployment).parent]
+        hg = hostgroup(deployment)
+        [hg && hg.parent]
       end
 
     end

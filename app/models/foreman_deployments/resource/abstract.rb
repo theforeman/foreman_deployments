@@ -53,12 +53,22 @@ module ForemanDeployments
         where stack_id: stack
       end
 
+      def self.ensure_configurable(resource)
+        raise ArgumentError, "#{resource.class} is not configurable" unless resource.class.configurable?
+      end
+
+      # @return all not configured instances of a given type (method receiver) within deployment
+      def self.not_configured_in(deployment)
+        configurable(deployment.stack) - configured_in(deployment) # TODO optimize
+      end
+
       # @override return true if the resource type needs configuration
       def self.configurable?
         false
       end
 
       # @override return true if the resource type allows configuration after it's phase passes
+      # @note TODO maybe report range in which phases can be configured
       def self.out_of_phase?
         false
       end
@@ -91,12 +101,6 @@ module ForemanDeployments
         else
           where(id: 0)
         end
-      end
-
-      # @override scope
-      # @return all not configured instances of a given type (method receiver) within deployment
-      def self.not_configured_in(deployment)
-        configurable(deployment.stack) - configured_in(deployment) # TODO optimize
       end
 
       # @override define steps to be made before configuration

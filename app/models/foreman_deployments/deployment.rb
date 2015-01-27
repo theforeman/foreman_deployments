@@ -35,6 +35,7 @@ module ForemanDeployments
     # @param [Resource::Abstract] resource
     # @param *args matching `resource.configure` method header
     def configure_resource(resource, *args)
+      Resource::Abstract.ensure_configurable resource
       starting_configuration_phase = configuration_phase
       unless can_be_configured? resource.class
         raise ArgumentError,
@@ -47,6 +48,11 @@ module ForemanDeployments
       if next_configuration_phase != starting_configuration_phase && next_configuration_phase
         run_before_configure next_configuration_phase
       end
+    end
+
+    def resource_configuration(resource)
+      Resource::Abstract.ensure_configurable resource
+      resource.configuration resource
     end
 
     # @return [Class] type of the Resource::Abstract being configured, first not fully configured type of resources

@@ -14,7 +14,7 @@ module ForemanDeployments
 
         belongs_to :deployment, class_name: 'ForemanDeployments::Deployment'
         belongs_to :resource, class_name: resource_class.to_s
-        belongs_to underscored_name.to_sym
+        belongs_to underscored_name.to_sym, class_name: "::#{foreman_class}"
 
         ensure_association_present :deployment
         ensure_association_present :resource
