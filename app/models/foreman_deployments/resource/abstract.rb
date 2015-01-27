@@ -118,6 +118,16 @@ module ForemanDeployments
         end
       end
 
+      # @override
+      # @return [Array] provided configuration in #configure
+      def configuration(deployment)
+        if self.class.configurable?
+          raise NotImplementedError
+        else
+          []
+        end
+      end
+
       # @return [true, false] if configured in given deployment
       def configured_in?(deployment)
         self.class.configured_in(deployment).include? self

@@ -61,6 +61,10 @@ module ForemanDeployments
         end
       end
 
+      def configuration(deployment)
+        [hostgroup(deployment).parent]
+      end
+
     end
   end
 end

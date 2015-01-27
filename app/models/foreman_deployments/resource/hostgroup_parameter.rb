@@ -38,6 +38,10 @@ module ForemanDeployments
         group_parameter(deployment).update_attributes!(value: value)
       end
 
+      def configuration(deployment)
+        [group_parameter(deployment).value]
+      end
+
       def group_parameter(deployment)
         dahp = DeploymentAssociations::HostgroupParameter.
             where(resource_id: self, deployment_id: deployment).
