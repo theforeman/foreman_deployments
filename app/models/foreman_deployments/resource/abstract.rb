@@ -101,7 +101,7 @@ module ForemanDeployments
 
       # @override define steps to be made before configuration
       # @note triggers after moving to this type's configuration phase
-      def before_configure(deployment, *args)
+      def before_configure(deployment)
         if self.class.configurable?
           raise NotImplementedError
         else
