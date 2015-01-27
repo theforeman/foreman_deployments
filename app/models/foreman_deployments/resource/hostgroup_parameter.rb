@@ -51,7 +51,8 @@ module ForemanDeployments
 
       # TODO omit parameters already provided, or allow to define inherit instead a value
       def before_configure(deployment)
-        foreman_hostgroup = ::Hostgroup.includes(:resources).where(Resource::Hostgroup.table_name => { id: hostgroup }).first
+        foreman_hostgroup = ::Hostgroup.includes(:resources).
+            where(Resource::Hostgroup.table_name => { id: hostgroup }).first
 
         DeploymentAssociations::HostgroupParameter.create!(
             deployment:      deployment,

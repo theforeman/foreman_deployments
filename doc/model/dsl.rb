@@ -43,6 +43,8 @@ Foreman::Deployments::DSL.define do
       parameter :db_password
       connect db_stack.hostgroups[:db].parameter[:db_url],
               web_server_stack.hostgroups[:web_server].param[:db_url]
+
+      child(db_stack) >> child(web_server_stack)
     end
   end
 end
