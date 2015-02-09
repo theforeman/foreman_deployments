@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.date        = Date.today.to_s
   s.author     = "ForemanDeployments team"
   s.email       = "foreman_deployments@example.com"
-  s.homepage    = "github.com/theforeman/foreman_deployments"
+  s.homepage    = "https://github.com/theforeman/foreman_deployments"
   s.summary     = "Foreman Deployments"
   s.description = "Foreman Deployments"
 
