@@ -17,19 +17,19 @@ module ForemanDeployments
     # TODO query-able by type
     # @return [Hash{Class => Array<Resource::Abstract>}]
     def configurable_resources
-      reduce_configuration_phases { |resource_class| resource_class.configurable(stack) }
+      stack.configurable_resources
     end
 
     # TODO query-able by type
     # @return [Hash{Class => Array<Resource::Abstract>}]
     def configured_resources
-      reduce_configuration_phases { |resource_class| resource_class.configured_in(self) }
+      Resource::Abstract.reduce_configuration_phases { |resource_class| resource_class.configured_in(self) }
     end
 
     # TODO query-able by type
     # @return [Hash{Class => Array<Resource::Abstract>}]
     def not_configured_resources
-      reduce_configuration_phases { |resource_class| resource_class.not_configured_in(self) }
+      Resource::Abstract.reduce_configuration_phases { |resource_class| resource_class.not_configured_in(self) }
     end
 
     # @param [Resource::Abstract] resource
@@ -76,12 +76,6 @@ module ForemanDeployments
         current_index >= resource_class_index
       else
         current_index == resource_class_index
-      end
-    end
-
-    def reduce_configuration_phases(&block)
-      configuration_phases.reduce({}) do |hash, resource_class|
-        hash.update resource_class => block.call(resource_class)
       end
     end
 

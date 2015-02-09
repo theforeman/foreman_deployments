@@ -11,7 +11,7 @@ Foreman::Deployments::DSL.define do
                  "<%= get_parameter('db_password') %>" # pseudo
       end
 
-      host :db, 1..1 do
+      host :db, min: 1, max: 1 do
         puppet_run >> puppet_run
       end
     end
@@ -29,7 +29,7 @@ Foreman::Deployments::DSL.define do
                  "<%= get_parameter('db_url') %>" # pseudo
       end
 
-      host :db, 1..n do
+      host :web_server, min: 1 do
         puppet_run
       end
     end

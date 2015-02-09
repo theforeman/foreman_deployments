@@ -16,5 +16,9 @@ module ForemanDeployments
 
     scoped_search :on => :name, :complete_value => :true
     validates :name, :presence => true
+
+    def configurable_resources
+      Resource::Abstract.reduce_configuration_phases { |resource_class| resource_class.configurable(self) }
+    end
   end
 end

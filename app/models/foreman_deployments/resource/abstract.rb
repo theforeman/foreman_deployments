@@ -49,6 +49,12 @@ module ForemanDeployments
         end.tsort
       end
 
+      def self.reduce_configuration_order(&block)
+        configuration_order.reduce({}) do |hash, resource_class|
+          hash.update resource_class => block.call(resource_class)
+        end
+      end
+
       def self.in_stack(stack)
         where stack_id: stack
       end
