@@ -23,13 +23,13 @@ module ForemanDeployments
     # TODO query-able by type
     # @return [Hash{Class => Array<Resource::Abstract>}]
     def configured_resources
-      Resource::Abstract.reduce_configuration_phases { |resource_class| resource_class.configured_in(self) }
+      Resource::Abstract.reduce_configuration_order { |resource_class| resource_class.configured_in(self) }
     end
 
     # TODO query-able by type
     # @return [Hash{Class => Array<Resource::Abstract>}]
     def not_configured_resources
-      Resource::Abstract.reduce_configuration_phases { |resource_class| resource_class.not_configured_in(self) }
+      Resource::Abstract.reduce_configuration_order { |resource_class| resource_class.not_configured_in(self) }
     end
 
     # @param [Resource::Abstract] resource
