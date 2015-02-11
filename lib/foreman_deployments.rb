@@ -66,7 +66,11 @@ module ForemanDeployments
       deployment.configure_resource hostgroup_parameter_resource, values.fetch(hostgroup_parameter_resource.name)
     end
 
-    [deployment.configurable_resources, # all
+    host = ::Host.first
+    deployment.configurable_resources[Resource::Host].first.configure(deployment, host)
+
+    [deployment,
+     deployment.configurable_resources, # all
      deployment.configured_resources, # all
      deployment.not_configured_resources, # empty
      deployment.configuration_phase] # nil no more phase to configure
