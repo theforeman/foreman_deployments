@@ -49,7 +49,7 @@ _If user is not mentioned then the step is done automatically._
 -   All hosts are just created waiting for provisioning or only provisioned
     without configuration triggered.
 
-## Deployment
+## Deploying Deployment
 
 **User** triggers deployment.
 

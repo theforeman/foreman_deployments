@@ -22,7 +22,7 @@ module ForemanDeployments
         in_stack(stack)
       end
 
-      # @override
+      # @abstract
       def self.configured_in(deployment)
         configurable(deployment.stack).
             includes(:associated_hostgroups_parameters => :group_parameter).

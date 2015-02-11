@@ -33,7 +33,7 @@ module ForemanDeployments
     end
 
     # @param [Resource::Abstract] resource
-    # @param *args matching `resource.configure` method header
+    # @param args matching `resource.configure` method header
     def configure_resource(resource, *args)
       Resource::Abstract.ensure_configurable resource
       starting_configuration_phase = configuration_phase

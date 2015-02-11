@@ -33,7 +33,7 @@ module ForemanDeployments
         where type: type
       end
 
-      # @returns [Array<Class>] order of configurable resources
+      # @return [Array<Class>] order of configurable resources
       def self.configuration_order
         # TODO maybe cache
         Abstract.descendants.each_with_object(TSortHash.new { |h, k| h[k] = Set.new }) do |resource_class, graph|
@@ -68,28 +68,28 @@ module ForemanDeployments
         configurable(deployment.stack) - configured_in(deployment) # TODO optimize
       end
 
-      # @override return true if the resource type needs configuration
+      # @abstract return true if the resource type needs configuration
       def self.configurable?
         false
       end
 
-      # @override return true if the resource type allows configuration after it's phase passes
+      # @abstract return true if the resource type allows configuration after it's phase passes
       # @note TODO maybe report range in which phases can be configured
       def self.out_of_phase?
         false
       end
 
-      # @override override and return which types does this type depends on, used in {.configuration_order}
+      # @abstract override and return which types does this type depends on, used in {.configuration_order}
       def self.configure_after
         []
       end
 
-      # @override override and return which types does depend on this type, used in {.configuration_order}
+      # @abstract override and return which types does depend on this type, used in {.configuration_order}
       def self.configure_before
         []
       end
 
-      # @override scope
+      # @abstract scope
       # @return all configurable instances of a given type (method receiver) within stack
       def self.configurable(stack)
         if configurable?
@@ -99,7 +99,7 @@ module ForemanDeployments
         end
       end
 
-      # @override scope
+      # @abstract scope
       # @return all already configured instances of a given type (method receiver) within deployment
       def self.configured_in(deployment)
         if configurable?
@@ -109,7 +109,7 @@ module ForemanDeployments
         end
       end
 
-      # @override define steps to be made before configuration
+      # @abstract define steps to be made before configuration
       # @note triggers after moving to this type's configuration phase
       def before_configure(deployment)
         if self.class.configurable?
@@ -119,7 +119,7 @@ module ForemanDeployments
         end
       end
 
-      # @override steps to be made on resource configuration, must be idempotent
+      # @abstract steps to be made on resource configuration, must be idempotent
       def configure(deployment, *args)
         if self.class.configurable?
           raise NotImplementedError
@@ -128,7 +128,7 @@ module ForemanDeployments
         end
       end
 
-      # @override
+      # @abstract
       # @return [Array] provided configuration in #configure
       def configuration(deployment)
         if self.class.configurable?
