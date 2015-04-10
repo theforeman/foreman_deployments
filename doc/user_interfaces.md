@@ -4,13 +4,13 @@
 ## 3 Ways of creating a deployment:
 - by deploying a stack
   - every stack is deployable
-  - the path: `stack list` → `deployment creation form` → `deployment config form` → `deployment info`
+  - the UI path: `stack list` → select stack & click `[Deploy]` → `deployment creation form` → click `[Configure]` → `deployment config form` → click `[Deploy]` → `deployment info`
 - by deploying a configuraion
   - an existing configuration is cloned and used for the new deployment (not all values are clonable, e.g. bare metal hosts)
-  - the path: `stack's config list` → `deployment creation form` → `deployment config form` with cloned values, fields that are not clonable are blank → `deployment info`
+  - the path: `stack's config list` → select config & click `[Deploy]` → `deployment creation form` → click `[Configure]` → `deployment config form` with cloned values, fields that are not clonable are blank → click `[Deploy]` → `deployment info`
 - by cloning an existing deployment
   - technically the same as deploying a configuration, different only from the user's perspective
-  - the path: `stack's config list` → `deployment creation form` → `deployment config form` with cloned values, fields that are not clonable are blank → `deployment info`
+  - the path: `deployment list` → select config & click `[Clone]` → `deployment creation form` → `[Configure]` → `deployment config form` with cloned values, fields that are not clonable are blank → `[Deploy]` → `deployment info`
 
 
 ## UI pages
@@ -30,7 +30,7 @@
   - `import stack`
 
 ### Stack info
-- shows info about used resources, required puppet classes, subnets etc.
+- shows info about used tasks, required puppet classes, subnets etc.
 - top buttons:
   - `deploy` - leads to the deployment creation form
   - `configure` - leads to config form, result is saved as a separate config for future cloning
@@ -74,7 +74,7 @@
 
 ### Deployment creation form
 - name for the deployment
-- list of select boxes for abstract substacks (name, description from the ChildResource should be shown here to explain)
+- list of select boxes for abstract substacks (name, description from the ChildStackTask should be shown here to explain)
 - select box for existing configuration (probably dependent on the combination of concrete substacks)
 - below buttons:
   - `cancel`
@@ -82,25 +82,10 @@
 
 
 ### Deployment configuration form
-Example workflow for the basic configurable resources:
-- configuration name (is prefilled with some meaningful value or hidden in case of deploying without preset config)
-- fill parameters for the stack
-- select neccessary subnets
-- configure required hostgroups
-  - select parents (link for creating a new hostgroup)
-  - fill parameters (inherited params are greyed out)
-  - puppet classes are displayed
-- select hosts for hostgroups
-  - for each hostgroup the user can either:
-    - add N virtual hosts running on compute resources (where min_hosts <= N <= max_hosts)
-    - add bare metal or discovered hosts one by one
-  - create name pattern for the hosts
-  - create interfaces, assign them to the subnet types
-    - interfaces are pre-set according to required subnet types
-    - for hosts that are not being provisioned we can only verify whether there's enough interfaces. We have no mechanism for creating more.
-    - select whether the host should be provisioned
-      - default is true
-      - useful for testing, debuging, very advanced usages
+- displays field for configuration name (is prefilled with some meaningful value or hidden in case of deploying without preset config)
+- shows configuration partials for tasks that need some users inputs
+- parials are shown in the order from the stack definition
+
 - below buttons:
   - `save`
   - `deploy`
@@ -171,18 +156,18 @@ Configure the deployment parameters. Values can be saved either all at once or o
 
 **TODO**: *solve how to send structured values like nics*
 
-1. Mapping config to key-value pairs
+1) Mapping config to key-value pairs
 ```bash
 hammer deployment configure --name "Web Server Instance" --values "db_passwd=xxx,db_user=webapp"
 ```
-2. Always specify the resource one configures as a full dot separated path
+2) Always specify the task one configures as a full dot separated path
 ```bash
-hammer deployment configure --name "Web Server Instance" --resource "db" --values "count=1,compute_resource=libvirt"
+hammer deployment configure --name "Web Server Instance" --task "db" --values "count=1,compute_resource=libvirt"
 ```
 ```bash
-hammer deployment configure --name "Web Server Instance" --resource "db.nics" --values "count=1"
+hammer deployment configure --name "Web Server Instance" --task "db.nics" --values "count=1"
 ```
-3. Always send a json
+3) Always send a json
 ```bash
 hammer deployment configure --name "Web Server Instance" --values "{'db': {'count': 1, 'nics': [ ... ]}}"
 ```

@@ -1,0 +1,37 @@
+@startuml
+
+object ProvisioningSubnet <<TakeSubnet>> {
+
+}
+
+object SatelliteOs <<TakeOs>> {
+  description: OS for the Satellite machine
+  family: RHEL
+  version: '>= 6.5'
+}
+
+object SatelliteMachine <<TakeHost>> {
+  count: 1
+  name: <input>
+  subnet: <reference to ProvisioningSubnet>
+  os: <reference to SatelliteOs>
+  activation_key: <input>
+}
+
+object ProvisionSatellite <<ProvisionHost>> {
+  host: <reference to SatelliteMachine>
+}
+
+object InstallSatellite <<RemoteExecution>> {
+  host: <reference to SatelliteMachine>
+  command: "katello-installer ..."
+  parameters: [password, ...]
+}
+
+
+ProvisioningSubnet -[#gray]-> SatelliteMachine
+SatelliteOs -[#gray]-> SatelliteMachine
+SatelliteMachine -[#gray]-> ProvisionSatellite
+ProvisionSatellite -[#gray]-> InstallSatellite
+
+@enduml
