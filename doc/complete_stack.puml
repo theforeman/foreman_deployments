@@ -1,0 +1,17 @@
+@startuml
+
+package Satellite {
+  !include sat_stack.puml
+}
+
+package Capsule {
+  !include capsule_stack.puml
+}
+
+
+ProvisioningSubnet -[#red]-> CapsuleProvisioningSubnet : provide subnet
+SatelliteMachine -[#red]-> CapsuleMachine : provide activation key
+ProvisionSatellite -[#red]-> CapsuleSatelliteMachine : provide satellite instance
+
+@enduml
+

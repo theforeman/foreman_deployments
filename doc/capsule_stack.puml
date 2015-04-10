@@ -1,0 +1,51 @@
+@startuml
+
+object CapsuleProvisioningSubnet <<TakeSubnet>> {
+
+}
+
+object CapsuleOs <<TakeOs>> {
+  description: OS for the Capsule machine
+  family: RHEL
+  version: '>= 6.5'
+}
+
+object CapsuleSatelliteMachine <<TakeHost>> {
+  description: The satellite master machine
+  count: 1
+}
+
+object CapsuleMachine <<TakeHost>> {
+  count: <input>
+  name: <template "capsule-#{index}">
+  subnet: <reference to CapsuleProvisioningSubnet>
+  os: <reference to CapsuleOs>
+  activation_key: <input>
+}
+
+object ProvisionCapsule <<ProvisionHost>> {
+  host: <reference to CapsuleMachine>
+}
+
+object GenerateAndDistributeCertificates <<RemoteExecution>> {
+  hosts: <reference to CapsuleSatelliteMachine>
+  command: "<% hosts.map(&:name).each {|fqdn| `capsule-certs-generate --capsule-fqdn ..."
+  params: [<references to capsules>]
+  result: [<capsule hosts>]
+}
+
+object InstallCapsule <<RemoteExecution>> {
+  host: <reference to GenerateAndDistributeCertificates>
+  command: "capsule-installer ..."
+  parameters: [oauth_key, oauth_secret, ...]
+}
+
+
+CapsuleProvisioningSubnet -[#gray]-> CapsuleMachine
+CapsuleOs -[#gray]-> CapsuleMachine
+CapsuleMachine -[#gray]-> ProvisionCapsule
+ProvisionCapsule -[#gray]-> GenerateAndDistributeCertificates
+CapsuleSatelliteMachine -[#gray]-> GenerateAndDistributeCertificates
+GenerateAndDistributeCertificates -[#gray]-> InstallCapsule
+
+@enduml

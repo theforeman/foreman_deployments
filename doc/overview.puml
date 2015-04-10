@@ -1,0 +1,42 @@
+@startuml
+
+scale 700 width
+
+object Stack {
+    Composable pieces of infrastructure
+    templates. The instructions needed
+    to assemble a set of resources for
+    a specific purpose, e.g. Database,
+    Load balancer, Neutron networked, etc.
+    Stacks are composed from tasks and
+    define relationships between them.
+}
+
+object Deployment {
+    The result of performing the instructions
+    in a stack, taking in saved configuration
+    and any necessary input from user.
+    It's a composition of created and
+    configured Foreman objects.
+}
+
+object Configuration {
+    Holds configuration for a stack, which
+    can be applied to a deployment.
+}
+
+object DeployedTask {
+    Holds results of deployed tasks to
+    enable viewing the resources used
+    or created by the deployment in future.
+}
+
+
+Stack "0..*" --> "0..*" Stack : has children
+note on link: acyclic graph
+Configuration "0..*" -up-> "0..*" Stack : has configuration for
+Deployment "0..*" -up-> "1" Configuration : deploys with configuration
+DeployedTask "0..*" -left-> "1" Deployment
+
+
+@enduml
