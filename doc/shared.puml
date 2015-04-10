@@ -1,0 +1,171 @@
+!define DEPLOYCOLOR DarkGreen
+!define FOREMANCOLOR DarkOrange
+!define CONNECTIONCOLOR DarkBlue
+!define FOREMAN << (C,FOREMANCOLOR) Foreman >>
+!define ORDERED << (C,green) Ordered >>
+!define FONT skinparam defaultFontName "Helvetica Neue"
+!define OBJECT(name,klass) object name <<klass>>
+!define DEPLOYOBJECT(type) skinparam objectBorderColor<<type>> DEPLOYCOLOR
+!define FOREMANOBJECT(type) skinparam objectBorderColor<<type>> FOREMANCOLOR
+
+!definelong CONFIGRESOURCES
+
+
+class HostgroupResource {
+    String name
+    .. notes ..
+    Parent is HostgroupResource
+    or it's provided on Deployment
+    configuration.
+}
+
+class ParameterResource {
+    String name
+    String description # intent
+    String default_value # optional
+    .. notes ..
+    Validations, like list of allowed
+    values.
+}
+
+class HostgroupParameterResource {
+    .. notes ..
+    Turns into GroupParameter.
+}
+
+class DeploymentParameterResource {
+    .. notes ..
+    Turns into DeploymentParameter.
+}
+
+class ParameterOverrideResource {
+    String key
+    String value # optional, ERB
+    .. notes ..
+    If value is not present it
+    needs to be supplied on
+    deployment configuration.
+}
+
+class ComputeResourceResource {
+    String type
+    Boolean image_based
+    String image_url nullable
+    .. notes ..
+    Each ComputeResourceResource allows
+    particular ComputeResource type for
+    a given HostResource. It has to
+    contain image_url when image_based.
+}
+
+class PuppetClassResource {
+    String name
+    \# of the class to add
+    .. notes ..
+    possibly allot to limit
+    puppet class versions
+}
+
+class SubnetTypeResource {
+    String name
+    .. notes ..
+    like Staypuft
+    network types
+}
+
+class InterfaceResource {
+    String ip
+    .. notes ..
+    creates interface without
+    Host to reserve IP
+}
+
+class HostResource {
+    String name # "db-%02d"
+    Integere min
+    Integere max
+}
+
+class ConnectParameterResource {
+    .. notes ..
+    Possibly allow to define
+    a transformation function.
+    Only resource allowing to connect
+    resources form child stacks.
+    ERB is inserted to destination
+    to propagate value from source.
+}
+
+InterfaceResource "0..*" --> "1" SubnetTypeResource : where
+HostgroupParameterResource "0..*" --> "0..1" HostgroupResource : will be\nadded to
+ParameterOverrideResource "0..*" --> "1" PuppetClassResource : overrides\nin
+PuppetClassResource "0..*" --> "1" HostgroupResource : will be\nadded to
+HostResource "0..*" --> "0..*" SubnetTypeResource : connects to
+HostResource "1..*" --> "1..*" ComputeResourceResource : allowed ComputeResources
+ConnectParameterResource "0..*" --> "1" ParameterResource : source
+ConnectParameterResource "0..1" --> "1" ParameterResource : destination
+HostResource "0..*" --> "1" HostgroupResource : provisions in
+HostgroupResource "0..*" <-- "0..1" HostgroupResource : be parent of
+note on link
+    Foreign keys cannot be stored on
+    target HostgroupResource.
+    It would prevent Stack share-ability.
+end note
+
+
+Resource <|-[#gray]- HostgroupResource
+Resource <|-[#gray]- HostResource
+Resource <|-[#gray]- ParameterResource
+ParameterResource <|-[#gray]- HostgroupParameterResource
+ParameterResource <|-[#gray]- DeploymentParameterResource
+Resource <|-[#gray]- ParameterOverrideResource
+Resource <|-[#gray]- PuppetClassResource
+Resource <|-[#gray]- ComputeResourceResource
+Resource <|-[#gray]- SubnetTypeResource
+Resource <|-[#gray]- InterfaceResource
+Resource <|-[#gray]- ConnectParameterResource
+
+!enddefinelong
+
+
+
+!definelong ORDEREDRESOURCES
+
+
+abstract class Resource {
+    .. notes ..
+    A Foreman object to be configured or created
+    to form an Deployment instance.
+}
+
+abstract class Ordered <<(A,orchid)>> {
+    .. notes ..
+    Resources that are ordered and executed via dynflow.
+}
+
+class ChildStackResource ORDERED
+
+class ParameterUpdateResource ORDERED {
+    Staring value
+    .. notes ..
+    possibly ERB to compute new value
+}
+
+class PuppetRunResource ORDERED
+
+class RemoteExecutionResource ORDERED
+
+Resource <|-[#gray]-- Ordered
+
+Ordered <|-[#gray]- ChildStackResource
+Ordered <|-[#gray]- ParameterUpdateResource
+Ordered <|-[#gray]- PuppetRunResource
+Ordered <|-[#gray]- RemoteExecutionResource
+
+PuppetRunResource "0..*" --> "1" HostResource : on
+RemoteExecutionResource "0..*" --> "1" HostResource : on
+ParameterUpdateResource "0..*" --> "1" ParameterResource : updates
+
+!enddefinelong
+
+
