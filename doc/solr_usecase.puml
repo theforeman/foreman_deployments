@@ -1,0 +1,189 @@
+@startuml
+
+title Solr stack
+scale 3500 width
+
+!include shared.puml
+FONT
+
+package zookeeper_server_stack {
+  object zk_machine_restrictions <<MachineRestrictionsResource>>{
+    CPU = 1
+    memory = 4GB
+    NOTE:
+    This resource is not part of the current design.
+    The machine requirements can be solved multiple
+    ways.
+  }
+
+  object zk_id <<ParamResource>> {
+    name = 'id'
+    value = "<%= @host.id %>"
+  }
+
+  object zk_ring <<ParamResource>> {
+    name = 'servers'
+    value = []
+  }
+
+  object zk_client_ip <<ParamResource>> {
+    name = 'zk_client_ip'
+    value = "$::ipaddress_eth0"
+  }
+
+
+  object zk_server <<HostgroupResource>> {
+  }
+
+  object zk_server_instance <<HostResource>> {
+    count = 4
+  }
+
+
+  object zk_subnet <<SybnetTypeResource>> {
+    name = 'provisioning'
+  }
+
+  object zk_server_instance_run <<PuppetRunResource>> {
+  }
+
+  object zk_zookeeper_class <<PuppetclassResource>> {
+    name = 'zookeeper'
+    source = https://github.com/deric/puppet-zookeeper
+    client_ip => $::ipaddress_eth0
+  }
+
+  object zk_install_java_params <<ParamResource>> {
+    name = 'install_java'
+    value = 'true'
+  }
+
+  object zk_java_pacakge_params <<ParamResource>> {
+    name = 'java_package'
+    value = 'openjdk-7-jre-headless'
+  }
+
+  zk_server_instance <-- zk_server
+  zk_server <-- zk_zookeeper_class
+  zk_server <-- zk_id
+  zk_server <-- zk_ring
+  zk_server <-- zk_client_ip
+  zk_server <-- zk_install_java_params
+  zk_server <-- zk_java_pacakge_params
+  zk_server_instance <-- zk_machine_restrictions
+  zk_server_instance <-- zk_server_instance_run
+  zk_server_instance <-- zk_subnet
+}
+
+
+package solr_single_shard_stack {
+
+  object solr_machine <<MachineRestrictionsResource>>{
+    CPU = 4
+    memory = 16GB
+    NOTE:
+    This resource is not part of the current design.
+    The machine requirements can be solved multiple
+    ways.
+  }
+
+  object solr_zk_ring <<ParamResource>> {
+    name = 'servers'
+    value =["$::ipaddress_eth0"]
+  }
+
+  object solr_client_fqdn <<ParamResource>> {
+    name = 'client_fqdn'
+    value = '$::fqdn_eth0'
+  }
+
+  object solr_home <<ParamResource>> {
+    name = 'home_folder'
+    value = '/home/lukasz/solr-4.2.1'
+  }
+
+  object solr_server <<HostgroupResource>> {
+  }
+
+  object solr_server_instance <<HostResource>> {
+    count = 1
+  }
+
+  object solr_subnet <<SybnetTypeResource>> {
+    name = 'provisioning'
+  }
+
+  object solr_server_instance_run <<PuppetRunResource>> {
+  }
+
+  object java_class <<PuppetclassResource>> {
+    name = 'puppetlabs-java'
+    source = 'https://github.com/puppetlabs/'
+  }
+  object tomcat_class <<PuppetclassResource>> {
+    name = 'puppetlabs-tomcat'
+    source = 'https://github.com/puppetlabs/puppetlabs-tomcat'
+  }
+  object solr_install_class <<PuppetclassResource>> {
+    name = 'solr-shard'
+    source = 'https://github.com/needs/creating'
+  }
+
+
+  solr_server_instance <-- solr_server
+  solr_server <-- java_class
+  solr_server <-- tomcat_class
+  solr_server <-- solr_install_class
+  solr_server <-- solr_zk_ring
+  solr_server <-- solr_client_fqdn
+  solr_server <-- solr_home
+  solr_server_instance <-- solr_machine
+  solr_server_instance <-- solr_server_instance_run
+  solr_server_instance <-- solr_subnet
+}
+
+
+object zookeeper_childstack <<ChildStackResource>> {
+
+}
+object solr_single_shard_childstack <<ChildStackResource>> {
+
+}
+
+object update_zk_ring_param <<ParamUpdateResource>> {
+  name = 'servers'
+  value = '<%= hosts_in('zk_server').map(&:ip) %>'
+}
+update_zk_ring_param --> zk_ring
+
+object update_solr_zk_ring_param <<ParamUpdateResource>> {
+  name = 'servers'
+  value = '<%= hosts_in('zk_server').map(&:ip) %>'
+}
+update_solr_zk_ring_param --> solr_zk_ring
+
+object zk_server_instance_run2 <<PuppetRunResource>> {
+  NOTE
+  Scond run to propagate the updated parameters
+}
+zk_server_instance_run2 --> zk_server_instance
+
+object solr_server_instance_run2 <<PuppetRunResource>> {
+  NOTE
+  Scond run to propagate the updated parameters
+}
+solr_server_instance_run2 --> solr_server_instance
+
+
+zookeeper_childstack <-- zookeeper_server_stack
+solr_single_shard_childstack <-- solr_single_shard_stack
+
+zookeeper_childstack <-[#gray]- update_zk_ring_param : depends on
+solr_single_shard_childstack <-[#gray]- update_zk_ring_param : depends on
+
+update_zk_ring_param <-[#gray]- update_solr_zk_ring_param : depends on
+
+update_solr_zk_ring_param <-[#gray]- zk_server_instance_run2 : depends on
+update_solr_zk_ring_param <-[#gray]- solr_server_instance_run2 : depends on
+
+@enduml

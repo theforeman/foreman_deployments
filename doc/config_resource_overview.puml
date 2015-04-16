@@ -1,0 +1,15 @@
+@startuml
+
+title Configuration Resource Types
+scale 850 width
+
+!include shared.puml
+FONT
+CONFIGRESOURCES
+
+legend
+All types share a single table.
+It's using STI. Plugins can add another implementations.
+end legend
+
+@enduml
