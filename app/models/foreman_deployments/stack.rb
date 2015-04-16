@@ -2,15 +2,23 @@ module ForemanDeployments
   class Stack < ActiveRecord::Base
     include Authorizable
     include Taxonomix
+    # TODO validate taxonomy, in parent context, it has to be the same something like that
+    # TODO add child resource to be able to compose stacks
 
-    # TODO(pchalupa) probably better to use acyclic graph, use EnsureNoCycle
-    # TODO(pchalupa) validate taxonomy, in parent context, it has to be the same something like that
+    self.table_name = ForemanDeployments::TABLE_PREFIX + 'stacks'
 
-    belongs_to :parent, :class_name => 'Stack'
-    has_many :children, :class_name => 'Stack', :foreign_key => 'parent_id'
+    has_many :resources,
+             class_name: 'ForemanDeployments::Resource::Abstract',
+             dependent: :destroy
+    has_many :deployments, :through => :stack_deployments
 
-    validates :name, :presence => true
+    has_many :stack_deployments # private
 
     scoped_search :on => :name, :complete_value => :true
+    validates :name, :presence => true
+
+    def configurable_resources
+      Resource::Abstract.reduce_configuration_order { |resource_class| resource_class.configurable(self) }
+    end
   end
 end

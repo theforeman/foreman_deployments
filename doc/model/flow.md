@@ -31,7 +31,7 @@ _If user is not mentioned then the step is done automatically._
         in the resource.
         -   If there is no value defined and the value is already configured through different matcher
             then the value is used and new override is not created.
--   **User** configures remaining unconfigured parameters added to `Hostgroup`.
+-   **User** configures remaining not-configured parameters added to `Hostgroup`.
 -   **User** continues by creating all the `Hosts` for each `HostResource`.
     (Custom form allowing to select just items bellow.)
     -   **User** assigns `Subnet`s to subnet types,
@@ -49,7 +49,7 @@ _If user is not mentioned then the step is done automatically._
 -   All hosts are just created waiting for provisioning or only provisioned
     without configuration triggered.
 
-## Deployment
+## Deploying Deployment
 
 **User** triggers deployment.
 

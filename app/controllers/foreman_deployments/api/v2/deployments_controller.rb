@@ -35,7 +35,9 @@ module ForemanDeployments
         def_param_group :deployment do
           param :deployment, Hash, :required => true, :action_aware => true do
             param :name, String, :required => true
+            param :description, String
             param_group :taxonomies, ::Api::V2::BaseController
+            param :stack_id, Integer, :desc => N_('ID of stack to be deployed')
           end
         end
 
@@ -43,7 +45,11 @@ module ForemanDeployments
         param_group :deployment, :as => :create
 
         def create
-          @deployment = Deployment.new(params[:deployment])
+          # TODO is there a better way pattern?
+          @deployment = Deployment.new(
+              params[:deployment].
+                  reject { |k, _| k == 'stack_id' }.
+                  merge(stack: Stack.find(params[:deployment][:stack_id])))
           process_response @deployment.save
         end
 

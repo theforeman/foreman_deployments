@@ -1,19 +1,23 @@
-# Foreman Deployments
+# Foreman Multi-Host Deployments
 
-*Introduction here*
+A plugin adding Foreman Multi-Host Deployment support.
 
 ## Installation
 
-See [How_to_Install_a_Plugin](http://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Plugin)
-for how to install Foreman plugins
+Add `gem 'foreman_deployments', path: '../foreman_deployments'` to your `Gemfile.local.rb` file.
+For more information see
+[How to Install a Plugin](http://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Plugin).
 
-## Usage
+## Documentation
 
-*Usage here*
-
-## TODO
-
-*Todo list here*
+-   Foreman [Deep dive](https://www.youtube.com/watch?v=CFPLGfA6-jU)
+    -   [Presentation](https://drive.google.com/file/d/0B4ZecfmLdabga0c2SGNqN1ZDQzg/view?usp=sharing)
+    -   Directory `doc/model` resources used in the deep-dive
+        -   [Notes](doc/model/notes.md)
+        -   [Deployment live-cycle](doc/model/flow.md)
+        -   Data model graphs - `*.svg` files
+-   Cfgmgmtcamp [presentation](http://blog.pitr.ch/presentations/2015/cfgmgmtcamp/)
+-   Code walk-through [session](https://bluejeans.com/s/83Q9/)
 
 ## Contributing
 
@@ -21,7 +25,7 @@ Fork and send a Pull Request. Thanks!
 
 ## Copyright
 
-Copyright (c) *year* *your name*
+Copyright (c) 2015 Red Hat, Inc. http://redhat.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

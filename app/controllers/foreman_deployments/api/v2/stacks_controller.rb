@@ -8,10 +8,11 @@ module ForemanDeployments
 
         resource_description do
           name 'Stack'
+          api_base_url '/foreman_deployments/api' # FIXME
         end
 
         before_filter :find_optional_nested_object
-        before_filter :find_resource, :only => %w{show update destroy}
+        before_filter :find_resource, :only => %w{show export update destroy}
 
 
         api :GET, "/stacks/", N_("List all stacks")
@@ -30,10 +31,18 @@ module ForemanDeployments
         def show
         end
 
+        api :GET, "/stacks/:id/export", N_("Export a stack")
+        param :id, :identifier, :required => true
+
+        def export
+          # FIXME hot to format just one response? do not change Oj configuration globally here!
+          Oj.default_options = Oj.default_options.merge(indent: 2)
+        end
+
         def_param_group :stack do
           param :stack, Hash, :required => true, :action_aware => true do
             param :name, String, :required => true
-            param :parent_id, :number, :desc => N_("A parent stack")
+            param :description, String
             param_group :taxonomies, ::Api::V2::BaseController
           end
         end
@@ -69,6 +78,15 @@ module ForemanDeployments
 
         def resource_class
           ForemanDeployments::Stack
+        end
+
+        def action_permission
+          case params[:action]
+          when 'export'
+            :view
+          else
+            super
+          end
         end
 
       end
