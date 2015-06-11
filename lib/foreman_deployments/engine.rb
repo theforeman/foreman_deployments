@@ -52,7 +52,7 @@ module ForemanDeployments
       ::GroupParameter.send :include, ForemanDeployments::Concerns::GroupParameter
     end
 
-    config.eager_load_paths += ["#{config.root}/app/models/foreman_deployments/resource/"]
+    # config.eager_load_paths += ["#{config.root}/app/models/foreman_deployments/resource/"]
 
     rake_tasks do
       Rake::Task['db:seed'].enhance do
