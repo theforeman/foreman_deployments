@@ -46,13 +46,13 @@ module ForemanDeployments
       Apipie.configuration.checksum_path += ['/foreman_deployments/api/']
     end
 
-    #Include concerns in this config.to_prepare block
-    config.to_prepare do
-      ::Hostgroup.send :include, ForemanDeployments::Concerns::Hostgroup
-      ::GroupParameter.send :include, ForemanDeployments::Concerns::GroupParameter
-    end
+    # Include concerns in this config.to_prepare block
+    # config.to_prepare do
+    #   ::Hostgroup.send :include, ForemanDeployments::Concerns::Hostgroup
+    #   ::GroupParameter.send :include, ForemanDeployments::Concerns::GroupParameter
+    # end
 
-    config.eager_load_paths += ["#{config.root}/app/models/foreman_deployments/resource/"]
+    # config.eager_load_paths += ["#{config.root}/app/models/foreman_deployments/resource/"]
 
     rake_tasks do
       Rake::Task['db:seed'].enhance do

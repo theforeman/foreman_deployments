@@ -1,3 +1,0 @@
-object @resource
-
-attributes :id

@@ -11,31 +11,17 @@ Rails.application.routes.draw do
 
         if SETTINGS[:organizations_enabled]
           resources :organizations, :except => [:new, :edit] do
-            resources :deployments, :except => [:new, :edit]
-            resources :stacks, :except => [:new, :edit]
-            # scoped by location AND organization
-            resources :locations, :except => [:new, :edit] do
-              resources :deployments, :except => [:new, :edit]
-              resources :stacks, :except => [:new, :edit]
-            end
+            # ...
           end
         end
 
         if SETTINGS[:locations_enabled]
           resources :locations, :except => [:new, :edit] do
-            resources :deployments, :except => [:new, :edit]
-            resources :stacks, :except => [:new, :edit]
-            # scoped by location AND organization
-            resources :organizations, :except => [:new, :edit] do
-              resources :stacks, :except => [:new, :edit]
-            end
+            # ...
           end
         end
 
-        resources :deployments, :except => [:new, :edit]
-        resources :stacks, :except => [:new, :edit] do
-          get 'export', on: :member
-        end
+        # ...
       end
     end
   end
