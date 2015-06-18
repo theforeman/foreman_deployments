@@ -15,4 +15,7 @@ Gem::Specification.new do |s|
   s.test_files = Dir['test/**/*']
 
   s.add_dependency 'foreman-tasks'
+  s.add_dependency 'safe_yaml'
+
+  s.add_development_dependency 'rubocop'
 end
