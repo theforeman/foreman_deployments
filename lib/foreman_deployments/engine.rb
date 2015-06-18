@@ -1,3 +1,5 @@
+require 'foreman_tasks'
+
 module ForemanDeployments
   class Engine < ::Rails::Engine
     config.autoload_paths += Dir["#{config.root}/app/controllers/foreman_deployments/concerns"]
@@ -44,6 +46,10 @@ module ForemanDeployments
       # rubocop:disable Metrics/LineLength
       Apipie.configuration.api_controllers_matcher << "#{ForemanDeployments::Engine.root}/app/controllers/foreman_deployments/api/v2/*.rb"
       Apipie.configuration.checksum_path += ['/foreman_deployments/api/']
+    end
+
+    initializer "foreman_deployments.require_dynflow", :before => "foreman_tasks.initialize_dynflow" do |app|
+      ::ForemanTasks.dynflow.require!
     end
 
     # Include concerns in this config.to_prepare block
