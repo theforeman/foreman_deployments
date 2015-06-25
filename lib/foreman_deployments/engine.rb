@@ -1,39 +1,38 @@
 module ForemanDeployments
   class Engine < ::Rails::Engine
-
     config.autoload_paths += Dir["#{config.root}/app/controllers/foreman_deployments/concerns"]
     config.autoload_paths += Dir["#{config.root}/app/helpers/foreman_deployments/concerns"]
     config.autoload_paths += Dir["#{config.root}/app/models/foreman_deployments/concerns"]
     config.autoload_paths += Dir["#{config.root}/app/overrides"]
 
     # Add any db migrations
-    initializer "foreman_deployments.load_app_instance_data" do |app|
+    initializer 'foreman_deployments.load_app_instance_data' do |app|
       app.config.paths['db/migrate'] += ForemanDeployments::Engine.paths['db/migrate'].existent
     end
 
-    initializer 'foreman_deployments.register_plugin', :after => :finisher_hook do |app|
+    initializer 'foreman_deployments.register_plugin', after: :finisher_hook do
       Foreman::Plugin.register :foreman_deployments do
         requires_foreman '>= 1.8'
 
         # Add permissions
         security_block :foreman_deployments do |map|
           map.permission :view_deployments,
-                         { :"foreman_deployments/api/v2/deployments" => [:index, :show] }
+                         :"foreman_deployments/api/v2/deployments" => [:index, :show]
           map.permission :create_deployments,
-                         { :"foreman_deployments/api/v2/deployments" => [:create] }
+                         :"foreman_deployments/api/v2/deployments" => [:create]
           map.permission :edit_deployments,
-                         { :"foreman_deployments/api/v2/deployments" => [:update] }
+                         :"foreman_deployments/api/v2/deployments" => [:update]
           map.permission :destroy_deployments,
-                         { :"foreman_deployments/api/v2/deployments" => [:destroy] }
+                         :"foreman_deployments/api/v2/deployments" => [:destroy]
 
           map.permission :view_foreman_deployments_stacks,
-                         { :"foreman_deployments/api/v2/stacks" => [:index, :show, :export] }
+                         :"foreman_deployments/api/v2/stacks" => [:index, :show, :export]
           map.permission :create_stacks,
-                         { :"foreman_deployments/api/v2/stacks" => [:create] }
+                         :"foreman_deployments/api/v2/stacks" => [:create]
           map.permission :edit_stacks,
-                         { :"foreman_deployments/api/v2/stacks" => [:update] }
+                         :"foreman_deployments/api/v2/stacks" => [:update]
           map.permission :destroy_stacks,
-                         { :"foreman_deployments/api/v2/stacks" => [:destroy] }
+                         :"foreman_deployments/api/v2/stacks" => [:destroy]
         end
 
         # Add a new role called 'Discovery' if it doesn't exist
@@ -41,7 +40,8 @@ module ForemanDeployments
       end
     end
 
-    initializer "foreman_deployments.apipie" do
+    initializer 'foreman_deployments.apipie' do
+      # rubocop:disable Metrics/LineLength
       Apipie.configuration.api_controllers_matcher << "#{ForemanDeployments::Engine.root}/app/controllers/foreman_deployments/api/v2/*.rb"
       Apipie.configuration.checksum_path += ['/foreman_deployments/api/']
     end
@@ -59,6 +59,5 @@ module ForemanDeployments
         ForemanDeployments::Engine.load_seed
       end
     end
-
   end
 end
