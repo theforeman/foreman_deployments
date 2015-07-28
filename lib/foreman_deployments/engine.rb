@@ -48,7 +48,7 @@ module ForemanDeployments
       Apipie.configuration.checksum_path += ['/foreman_deployments/api/']
     end
 
-    initializer "foreman_deployments.require_dynflow", :before => "foreman_tasks.initialize_dynflow" do |app|
+    initializer 'foreman_deployments.require_dynflow', before: 'foreman_tasks.initialize_dynflow' do
       ::ForemanTasks.dynflow.require!
     end
 

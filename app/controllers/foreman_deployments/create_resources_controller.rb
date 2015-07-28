@@ -14,6 +14,7 @@ module ForemanDeployments
       @user = @resource.new_resource
     end
 
+    # rubocop:disable Metrics/MethodLength
     def create
       params[:user].delete :admin
       description_input = {
@@ -30,7 +31,8 @@ module ForemanDeployments
             klass: Usergroup,
             params: {
               name: 'zzz',
-              user_ids: [ForemanDeployments::TaskReference.new(:user1, :object_id)]
+              user_ids: [ForemanDeployments::TaskReference.new(:user1,
+                                                               :object_id)]
             }
           }
         }

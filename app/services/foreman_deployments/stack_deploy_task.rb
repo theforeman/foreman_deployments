@@ -9,20 +9,19 @@ module ForemanDeployments
 
     def plan(description_input)
       # Hash[facts.map {|k, v| [k.to_s, v.to_s]}]
-      description = {}
+      definitions = {}
       description_input.each_pair do |k, v|
-        description[k] = create_definition(v, description)
+        definitions[k] = create_definition(v, definitions)
       end
 
-      description.values.each(&:validate)
-      description.values.each(&:plan)
+      definitions.values.each(&:validate)
+      definitions.values.each { |d| d.plan(self) }
     end
 
     private
 
     def create_definition(task_description, tasks_hash)
       TaskDefinition.new(
-        self,
         tasks_hash,
         task_description[:task],
         task_description[:params])
