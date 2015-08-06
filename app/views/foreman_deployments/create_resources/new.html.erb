@@ -1,0 +1,8 @@
+<% title _("New resource") %>
+
+<%= form_for @resource, url: create_resources_path do |f| %>
+  <%= render partial: "/users/form", locals: { user: @resource.new_resource } %>
+
+  <%= #submit_or_cancel f, false, :cancel_path => foreman_deployments_create_resources_path 
+  %>
+<% end %>
