@@ -13,6 +13,12 @@ module ForemanDeployments
         def stack_parse_error(exception)
           render_error 'standard_error', :locals => { :exception => exception }, :status => :unprocessable_entity
         end
+
+        def resource_class_for(resource)
+          return "ForemanDeployments::#{resource.classify}".constantize
+        rescue NameError
+          super
+        end
       end
     end
   end

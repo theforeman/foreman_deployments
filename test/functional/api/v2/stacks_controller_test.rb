@@ -4,10 +4,6 @@ class ForemanDeployments::Api::V2::StacksControllerTest < ActionController::Test
   class FakeTask < ForemanDeployments::Tasks::BaseDefinition
   end
 
-  teardown do
-    ForemanDeployments.tasks.clear!
-  end
-
   describe 'importing stack' do
     setup do
       @definition = [
@@ -15,6 +11,10 @@ class ForemanDeployments::Api::V2::StacksControllerTest < ActionController::Test
         '  parameters:',
         '    host_id: 1'
       ].join("\n")
+    end
+
+    teardown do
+      ForemanDeployments.tasks.clear!
     end
 
     test 'should import stack' do
@@ -37,6 +37,13 @@ class ForemanDeployments::Api::V2::StacksControllerTest < ActionController::Test
 
       parsed_response = JSON.parse(response.body)
       assert_match('Unknown stack task Test', parsed_response['error']['message'])
+    end
+  end
+
+  describe 'listing stacks' do
+    test 'it lists available stacks' do
+      get :index
+      assert_response :success
     end
   end
 end
