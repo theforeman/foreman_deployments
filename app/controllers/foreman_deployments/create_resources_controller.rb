@@ -1,5 +1,4 @@
 module ForemanDeployments
-  #
   class CreateResourcesController < ApplicationController
     def index
     end

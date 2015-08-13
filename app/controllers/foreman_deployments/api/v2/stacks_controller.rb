@@ -17,6 +17,11 @@ module ForemanDeployments
           ForemanDeployments::StackParser.parse(@stack.definition)
           process_response @stack.save
         end
+
+        api :GET, '/stacks/', N_('List saved stacks')
+        def index
+          @stacks = resource_scope
+        end
       end
     end
   end

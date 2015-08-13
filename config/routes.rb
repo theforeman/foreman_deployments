@@ -8,7 +8,7 @@ Rails.application.routes.draw do
             :defaults    => { :apiv => 'v2' },
             :apiv        => /v1|v2/,
             :constraints => ApiConstraints.new(:version => 2) do
-        resources :stacks, :only => [:create]
+        resources :stacks, :only => [:create, :index]
       end
     end
   end
