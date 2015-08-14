@@ -49,12 +49,12 @@ class StackDeployActionTest < ActiveSupport::TestCase
       create_and_plan_action(ForemanDeployments::Tasks::StackDeployAction, stack)
 
       task_params = get_planned_params(task1)
-      assert_equal(Dynflow::ExecutionPlan::OutputReference, task_params[:param].class)
-      assert_equal(['some_value'], task_params[:param].subkeys)
+      assert_equal(Dynflow::ExecutionPlan::OutputReference, task_params['param'].class)
+      assert_equal(['some_value'], task_params['param'].subkeys)
 
       task_params = get_planned_params(task2)
-      assert_equal(Dynflow::ExecutionPlan::OutputReference, task_params[:param].class)
-      assert_equal(['id'], task_params[:param].subkeys)
+      assert_equal(Dynflow::ExecutionPlan::OutputReference, task_params['param'].class)
+      assert_equal(['id'], task_params['param'].subkeys)
 
       assert_equal({}, get_planned_params(task3))
     end

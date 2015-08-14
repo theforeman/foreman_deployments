@@ -4,10 +4,7 @@ require 'foreman_deployments/monkey_patches'
 
 module ForemanDeployments
   class Engine < ::Rails::Engine
-    config.autoload_paths += Dir["#{config.root}/app/controllers/foreman_deployments/concerns"]
-    config.autoload_paths += Dir["#{config.root}/app/helpers/foreman_deployments/concerns"]
-    config.autoload_paths += Dir["#{config.root}/app/models/foreman_deployments/concerns"]
-    config.autoload_paths += Dir["#{config.root}/app/overrides"]
+    config.autoload_paths += Dir["#{config.root}/app/**/"]
 
     # Add any db migrations
     initializer 'foreman_deployments.load_app_instance_data' do |app|
@@ -60,9 +57,9 @@ module ForemanDeployments
       SafeYAML::OPTIONS[:deserialize_symbols] = true
     end
 
-    initializer 'foreman_deployments.tasks_registration' do
-      ForemanDeployments.tasks.register_task('CreateResource', Tasks::CreationTaskDefinition)
-      ForemanDeployments.tasks.register_task('SearchResource', Tasks::SearchTaskDefinition)
+    config.to_prepare do
+      ForemanDeployments.registry.register_task(ForemanDeployments::Tasks::CreationTaskDefinition)
+      ForemanDeployments.registry.register_task(ForemanDeployments::Tasks::SearchTaskDefinition)
     end
 
     # Include concerns in this config.to_prepare block

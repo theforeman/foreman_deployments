@@ -27,7 +27,7 @@ module ForemanDeployments
       end
 
       def preliminary_output(parameters)
-        SearchTaskDefinition.create_output(SearchTaskDefinition.search(parameters))
+        SearchTaskDefinition.create_output(SearchTaskDefinition.search(parameters.configured))
       end
 
       def dynflow_action

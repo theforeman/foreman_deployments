@@ -3,39 +3,39 @@ module ForemanDeployments
     class RemoveIdsVisitor
       def visit(subject)
         if subject.is_a? ForemanDeployments::Tasks::BaseDefinition
-          subject.parameters = remove_ids(subject.parameters)
+          remove_ids(subject.parameters)
         end
       end
 
       private
 
-      def remove_ids(hash)
-        pairs = hash.map do |key, value|
-          transform_pair(key, value)
-        end
-        HashWithIndifferentAccess[pairs]
-      end
-
-      def transform_pair(key, value)
-        if singular_reference?(key, value)
-          [key.to_s.sub('_id', ''), remove_id_from_reference(value)]
-        elsif multiple_references?(key, value)
-          [key.to_s.sub('_id', ''), handle_multiple_values(value)]
-        elsif value.is_a? Hash
-          [key, remove_ids(value)]
+      def remove_ids(value)
+        case value
+        when Config::Hash
+          remove_ids_from_hash(value)
+        when Config::Array
+          remove_ids_from_array(value)
+        when TaskReference
+          remove_id_from_reference(value)
         else
-          return [key, value]
+          value
         end
       end
 
-      def singular_reference?(key, value)
-        key.to_s.end_with?('_id') && value.is_a?(TaskReference)
+      def remove_ids_from_hash(hash)
+        hash.transform! do |key, item|
+          if singular_reference?(key) || multiple_references?(key)
+            [key.to_s.sub('_id', ''), remove_ids(item)]
+          else
+            [key, remove_ids(item)]
+          end
+        end
       end
 
-      def multiple_references?(key, value)
-        key.to_s.end_with?('_ids') && (
-         value.is_a?(TaskReference) ||
-         value.any? { |i| i.is_a?(TaskReference) })
+      def remove_ids_from_array(array)
+        array.transform! do |item|
+          remove_ids(item)
+        end
       end
 
       def remove_id_from_reference(ref)
@@ -47,9 +47,12 @@ module ForemanDeployments
         ref
       end
 
-      def handle_multiple_values(value)
-        return remove_id_from_reference(value) if value.is_a? TaskReference
-        value.map { |item| remove_id_from_reference(item) }
+      def singular_reference?(key)
+        key.to_s.end_with?('_id')
+      end
+
+      def multiple_references?(key)
+        key.to_s.end_with?('_ids')
       end
     end
   end

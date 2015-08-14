@@ -23,7 +23,7 @@ class BaseDefinitionTest < ActiveSupport::TestCase
   end
 
   describe 'plan' do
-    let(:task_params) { { :params => true } }
+    let(:task_params) { { 'params' => true } }
     let(:dynflow_action) { mock }
     let(:parent_task) do
       parent_task = mock
@@ -59,15 +59,17 @@ class BaseDefinitionTest < ActiveSupport::TestCase
   end
 
   test 'configure deep merges the parameters' do
-    task = ForemanDeployments::Tasks::BaseDefinition.new(
-                                                'count' => 1,
-                                                'should_not' => 'be_touched',
-                                                'parameters' => {
-                                                  'a' => 1,
-                                                  'b' => 2
-                                                }
-    )
-    parameters = {
+    task = ForemanDeployments::Tasks::BaseDefinition.new
+
+    parameters1 = {
+      'count' => 1,
+      'should_not' => 'be_touched',
+      'parameters' => {
+        'a' => 1,
+        'b' => 2
+      }
+    }
+    parameters2 = {
       'count' => 2,
       'parameters' => {
         'a' => 1,
@@ -83,9 +85,10 @@ class BaseDefinitionTest < ActiveSupport::TestCase
         'c' => 3
       }
     }
-    task.configure(parameters)
 
-    assert_equal(expected_params, task.parameters)
+    task.configure(parameters1)
+    task.configure(parameters2)
+    assert_equal(expected_params, task.configuration)
   end
 
   describe 'accept' do

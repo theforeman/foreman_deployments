@@ -4,8 +4,8 @@ class StackParserTest < ActiveSupport::TestCase
   class Vulnerable
   end
 
-  class TestTask < ForemanDeployments::Tasks::BaseDefinition
-  end
+  class TestTask < ForemanDeployments::Tasks::BaseDefinition; end
+  class TestInput < ForemanDeployments::Inputs::BaseInputDefinition; end
 
   def assert_stack_invalid
     e = assert_raises ForemanDeployments::StackParseException do
@@ -15,8 +15,8 @@ class StackParserTest < ActiveSupport::TestCase
   end
 
   setup do
-    @register = ForemanDeployments::TaskRegistry.new
-    @parser = ForemanDeployments::StackParser.new(@register)
+    @registry = ForemanDeployments::Registry.new
+    @parser = ForemanDeployments::StackParser.new(@registry)
   end
 
   test 'it raises exception when the stack is not valid yaml hash' do
@@ -57,19 +57,20 @@ class StackParserTest < ActiveSupport::TestCase
 
   test 'it does not allow creation of custom objects' do
     stack = [
-      'SatelliteStack: !ruby/object:StackParserTest::Vulnerable',
+      'SatelliteStack: !ruby/object:Vulnerable',
       '  name: Satellite'
     ].join("\n")
     e = assert_raises ForemanDeployments::UnknownYAMLTagException do
       @parser.parse(stack)
     end
-    assert_match(/Unknown YAML tag ruby\/object:StackParserTest::Vulnerable/, e.message)
+    assert_match(/Unknown YAML tag ruby\/object:Vulnerable/, e.message)
   end
 
   test 'it returns instance of StackDefinition' do
-    @register.register_task('Test', StackParserTest::TestTask)
+    @registry.register_task(TestTask)
+
     stack = [
-      'FirstRun: !task:Test',
+      'FirstRun: !task:TestTask',
       '  parameters:',
       '    host_id: 1'
     ].join("\n")
@@ -79,11 +80,16 @@ class StackParserTest < ActiveSupport::TestCase
   end
 
   test 'it parses the stack' do
-    @register.register_task('Test', StackParserTest::TestTask)
+    @registry.register_task(TestTask)
+    @registry.register_input(TestInput)
+
     stack = [
-      'FirstRun: !task:Test',
+      'FirstRun: !task:TestTask',
       '  parameters:',
-      '    host_id: 1'
+      '    host_id: 1',
+      'SecondRun: !task:TestTask',
+      '  parameters:',
+      '    name: !input:TestInput'
     ].join("\n")
 
     stack_definition = @parser.parse(stack)
@@ -92,14 +98,19 @@ class StackParserTest < ActiveSupport::TestCase
     assert_equal(StackParserTest::TestTask, task_definition.class)
     assert_equal('FirstRun', task_definition.task_id)
     assert_equal({ 'parameters' => { 'host_id' => 1 } }, task_definition.parameters)
+
+    task_definition = stack_definition.tasks['SecondRun']
+    assert_equal(StackParserTest::TestTask, task_definition.class)
+    assert_equal('SecondRun', task_definition.task_id)
+    assert_equal(StackParserTest::TestInput, task_definition.parameters['parameters']['name'].class)
   end
 
   test 'it parses references in a stack' do
-    @register.register_task('Test', StackParserTest::TestTask)
+    @registry.register_task(TestTask)
 
     stack = [
-      'DbServerHost: !task:Test',
-      'FirstRun: !task:Test',
+      'DbServerHost: !task:TestTask',
+      'FirstRun: !task:TestTask',
       '  parameters:',
       '    host_id: !reference',
       "      object: 'DbServerHost'",

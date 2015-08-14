@@ -26,6 +26,19 @@ module ForemanDeployments
       visitor.visit(self)
     end
 
+    def to_hash
+      {
+        '_type' => 'reference',
+        '_name' => self.class.tag_name,
+        'object' => task_id,
+        'field' => output_key
+      }
+    end
+
+    def self.tag_name
+      'reference'
+    end
+
     private
 
     def output_keys

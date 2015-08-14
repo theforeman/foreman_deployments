@@ -14,6 +14,10 @@ module ForemanDeployments
       visitor.visit(self)
     end
 
+    def to_hash
+      tasks
+    end
+
     private
 
     def initialize_tasks

@@ -36,8 +36,8 @@ module ForemanDeployments
   class StackParser
     TAG_DOMAIN = 'deployments.theforeman.org,2015'
 
-    def initialize(task_registry = nil)
-      @task_registry = task_registry || ForemanDeployments.tasks
+    def initialize(registry = nil)
+      @registry = registry || ForemanDeployments.registry
     end
 
     def parse(stack_definition)
@@ -72,10 +72,17 @@ module ForemanDeployments
         TaskReference.new(params['object'], params['field'])
       end
 
-      @task_registry.available_tasks.each do |task_name, task_class|
+      @registry.available_tasks.each do |task_name, task_class|
         whitelist << task_prefix(task_name)
         YAML.add_domain_type(TAG_DOMAIN, 'task:' + task_name) do |_tag, params|
-          task_class.new(params)
+          task_class.constantize.new(params)
+        end
+      end
+
+      @registry.available_inputs.each do |input_name, input_class|
+        whitelist << input_prefix(input_name)
+        YAML.add_domain_type(TAG_DOMAIN, 'input:' + input_name) do |_tag, params|
+          input_class.constantize.new(params)
         end
       end
       whitelist
@@ -95,6 +102,10 @@ module ForemanDeployments
 
     def task_prefix(task_name = '')
       domain_prefix("task:#{task_name}")
+    end
+
+    def input_prefix(input_name = '')
+      domain_prefix("input:#{input_name}")
     end
 
     def wrap_exception(e)
