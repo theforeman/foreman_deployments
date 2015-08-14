@@ -26,8 +26,8 @@ module ForemanDeployments
         ValidationResult.new(messages)
       end
 
-      def preliminary_output(parameters)
-        SearchTaskDefinition.create_output(SearchTaskDefinition.search(parameters))
+      def preliminary_output
+        SearchTaskDefinition.create_output(SearchTaskDefinition.search(parameters.configured))
       end
 
       def dynflow_action

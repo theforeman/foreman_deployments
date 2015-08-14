@@ -7,18 +7,18 @@ class ForemanDeployments::Api::V2::StacksControllerTest < ActionController::Test
   describe 'importing stack' do
     setup do
       @definition = [
-        'FirstRun: !task:Test',
+        'FirstRun: !task:FakeTask',
         '  parameters:',
         '    host_id: 1'
       ].join("\n")
     end
 
     teardown do
-      ForemanDeployments.tasks.clear!
+      ForemanDeployments.registry.clear!
     end
 
     test 'should import stack' do
-      ForemanDeployments.tasks.register_task('Test', FakeTask)
+      ForemanDeployments.registry.register_task(FakeTask)
 
       assert_difference('ForemanDeployments::Stack.count', 1) do
         post :create,  :stack => { :name => 'Test stack', :definition => @definition }
@@ -36,7 +36,7 @@ class ForemanDeployments::Api::V2::StacksControllerTest < ActionController::Test
       assert_response :unprocessable_entity
 
       parsed_response = JSON.parse(response.body)
-      assert_match('Unknown stack task Test', parsed_response['error']['message'])
+      assert_match('Unknown stack task FakeTask', parsed_response['error']['message'])
     end
   end
 

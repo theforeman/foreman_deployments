@@ -1,6 +1,6 @@
 module ForemanDeployments
   module Tasks
-    class CreationTaskDefinition < BaseDefinition
+    class CreationTaskDefinition < ForemanDeployments::Tasks::BaseDefinition
       class Action < BaseAction
         def run
           obj = CreationTaskDefinition.create_object(input)
@@ -10,14 +10,15 @@ module ForemanDeployments
       end
 
       def validate
-        obj = CreationTaskDefinition.create_object(parameters)
+        obj = CreationTaskDefinition.create_object(parameters.configured)
         obj.valid?
-
-        ValidationResult.new(obj.errors.messages)
+        ValidationResult.new(obj.errors.full_messages)
+      rescue ActiveRecord::ActiveRecordError => e
+        ValidationResult.new(e.message)
       end
 
-      def preliminary_output(parameters)
-        CreationTaskDefinition.create_output(CreationTaskDefinition.create_object(parameters))
+      def preliminary_output
+        CreationTaskDefinition.create_output(CreationTaskDefinition.create_object(parameters.configured))
       end
 
       def dynflow_action
@@ -29,12 +30,25 @@ module ForemanDeployments
         object_params = parameters['params']
 
         object_type = object_type.constantize if object_type.is_a? String
-        object_type.new(object_params)
+        object = object_type.new
+        object_params.each do |key, value|
+          begin
+            object.send("#{key}=", value)
+          rescue ActiveRecord::UnknownAttributeError => e
+            # TODO: add this to warnings
+            e.message
+          end
+        end
+        object
       end
 
       def self.create_output(obj, output_hash = {})
         output_hash['object'] = obj
         output_hash
+      end
+
+      def self.tag_name
+        'CreateResource'
       end
     end
   end

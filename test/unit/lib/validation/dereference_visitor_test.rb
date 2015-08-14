@@ -6,7 +6,7 @@ class DereferenceVisitorTest < ActiveSupport::TestCase
       ForemanDeployments::ValidationResult.new
     end
 
-    def preliminary_output(_parameters)
+    def preliminary_output
       {}
     end
   end
@@ -23,15 +23,15 @@ class DereferenceVisitorTest < ActiveSupport::TestCase
     task3.expects(:preliminary_output).once.returns('result' => 789)
 
     task2 = TestTask.new(
-      :param1 => 2,
-      :param2 => ForemanDeployments::TaskReference.new('task3', 'result', task3)
+      'param1' => 2,
+      'param2' => ForemanDeployments::TaskReference.new('task3', 'result', task3)
     )
     task2.expects(:preliminary_output).once.returns('result1' => 123, 'result2' => 456)
 
     task1 = TestTask.new(
-      :param1 => 1,
-      :param2 => ForemanDeployments::TaskReference.new('task2', 'result1', task2),
-      :param3 => ForemanDeployments::TaskReference.new('task2', 'result2', task2)
+      'param1' => 1,
+      'param2' => ForemanDeployments::TaskReference.new('task2', 'result1', task2),
+      'param3' => ForemanDeployments::TaskReference.new('task2', 'result2', task2)
     )
 
     definition = ForemanDeployments::StackDefinition.new(
@@ -42,7 +42,7 @@ class DereferenceVisitorTest < ActiveSupport::TestCase
     definition.accept(@visitor)
 
     assert_equal({}, task3.parameters)
-    assert_equal({ :param1 => 2, :param2 => 789 }, task2.parameters)
-    assert_equal({ :param1 => 1, :param2 => 123, :param3 => 456 }, task1.parameters)
+    assert_equal({ 'param1' => 2, 'param2' => 789 }, task2.parameters)
+    assert_equal({ 'param1' => 1, 'param2' => 123, 'param3' => 456 }, task1.parameters)
   end
 end

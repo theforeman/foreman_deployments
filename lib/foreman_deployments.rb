@@ -1,7 +1,7 @@
 require 'foreman_deployments/engine'
 
 module ForemanDeployments
-  def self.tasks
-    @task_registry ||= TaskRegistry.new
+  def self.registry
+    @task_registry ||= ForemanDeployments::Registry.new
   end
 end

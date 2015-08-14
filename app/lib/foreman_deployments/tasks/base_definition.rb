@@ -4,14 +4,12 @@ module ForemanDeployments
       attr_accessor :task_id, :parameters
       attr_reader :planned
 
-      def initialize(params = {})
-        params ||= {}
-        @task_id = task_id
-        @parameters = HashWithIndifferentAccess[params]
+      def initialize(params = nil)
+        @parameters = ForemanDeployments::Config.cast_to_configuration(params || {})
       end
 
       def plan(parent_task)
-        @planned ||= parent_task.send(:plan_action, dynflow_action, parameters)
+        @planned ||= parent_task.send(:plan_action, dynflow_action, parameters.configured)
       end
 
       def dynflow_action
@@ -22,17 +20,36 @@ module ForemanDeployments
         fail NotImplementedError, "Method 'validate' needs to be implemented"
       end
 
-      def preliminary_output(_parameters)
+      def preliminary_output
         fail NotImplementedError, "Method 'preliminary_output' needs to be implemented"
       end
 
-      def configure(additional_parameters)
-        @parameters = @parameters.deep_merge(additional_parameters)
+      def configure(parameters)
+        @parameters.configure(parameters)
+      end
+
+      def merge_configuration(additional_parameters)
+        @parameters.merge_configuration(additional_parameters)
+      end
+
+      def configuration
+        @parameters.configuration
       end
 
       def accept(visitor)
         visit_parameters(visitor, parameters)
         visitor.visit(self)
+      end
+
+      def to_hash
+        @parameters.configured.merge(
+          '_type' => 'task',
+          '_name' => self.class.tag_name
+        )
+      end
+
+      def self.tag_name
+        name.split('::').last
       end
 
       private

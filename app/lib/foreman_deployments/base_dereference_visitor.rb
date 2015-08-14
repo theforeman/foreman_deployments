@@ -20,10 +20,10 @@ module ForemanDeployments
       case value
       when ForemanDeployments::TaskReference
         return get_dereference(value)
-      when Array
-        return value.map { |obj| dereference(obj) }
-      when Hash
-        return HashWithIndifferentAccess[value.map { |key, obj| [key, dereference(obj)] }]
+      when Config::Array
+        return value.transform! { |obj| dereference(obj) }
+      when Config::Hash
+        return value.transform! { |key, obj| [key, dereference(obj)] }
       else
         return value
       end

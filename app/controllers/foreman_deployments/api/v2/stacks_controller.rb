@@ -2,6 +2,8 @@ module ForemanDeployments
   module Api
     module V2
       class StacksController < BaseController
+        before_filter :find_resource, :only => [:show]
+
         def_param_group :stack do
           param :stack, Hash, :required => true, :action_aware => true do
             param :name, String, :required => true, :desc => N_('Name for the stack')
@@ -21,6 +23,12 @@ module ForemanDeployments
         api :GET, '/stacks/', N_('List saved stacks')
         def index
           @stacks = resource_scope
+        end
+
+        api :GET, '/stacks/:id/', N_('Get information about a stack')
+        param :id, :identifier, :required => true
+        def show
+          @parsed_stack = ForemanDeployments::StackParser.parse(@stack.definition)
         end
       end
     end
