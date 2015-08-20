@@ -3,10 +3,23 @@ inherit_from:
 
 AllCops:
   RunRailsCops: true # always run the rails cops
+  Exclude:
+    - 'db/schema.rb'
 
 # Don't enforce documentation
 Style/Documentation:
   Enabled: false
+
+# Support both ruby19 and hash_rockets
+Style/HashSyntax:
+  Enabled: false
+  SupportedStyles:
+    - ruby19
+    - hash_rockets
+
+Metrics/ClassLength:
+  Exclude:
+    - 'test/**/*'
 
 # Force before_filter until upgrade to Rails 4
 Rails/ActionFilter:
@@ -14,3 +27,13 @@ Rails/ActionFilter:
 
 Metrics/MethodLength:
   Max: 20
+
+Metrics/AbcSize:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Exclude:
+    - 'test/**/*'
+
+Style/GuardClause:
+  Enabled: false

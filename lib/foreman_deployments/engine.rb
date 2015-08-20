@@ -1,11 +1,10 @@
 require 'foreman_tasks'
+require 'safe_yaml/load'
+require 'foreman_deployments/monkey_patches'
 
 module ForemanDeployments
   class Engine < ::Rails::Engine
-    config.autoload_paths += Dir["#{config.root}/app/controllers/foreman_deployments/concerns"]
-    config.autoload_paths += Dir["#{config.root}/app/helpers/foreman_deployments/concerns"]
-    config.autoload_paths += Dir["#{config.root}/app/models/foreman_deployments/concerns"]
-    config.autoload_paths += Dir["#{config.root}/app/overrides"]
+    config.autoload_paths += Dir["#{config.root}/app/**/"]
 
     # Add any db migrations
     initializer 'foreman_deployments.load_app_instance_data' do |app|
@@ -50,6 +49,12 @@ module ForemanDeployments
 
     initializer 'foreman_deployments.require_dynflow', before: 'foreman_tasks.initialize_dynflow' do
       ::ForemanTasks.dynflow.require!
+      ::ForemanTasks.dynflow.config.eager_load_paths << File.join(ForemanDeployments::Engine.root, 'app/services/foreman_deployments/tasks')
+    end
+
+    initializer 'foreman_deployments.safe_yaml' do
+      SafeYAML::OPTIONS[:default_mode] = :safe
+      SafeYAML::OPTIONS[:deserialize_symbols] = true
     end
 
     # Include concerns in this config.to_prepare block
