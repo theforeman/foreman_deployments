@@ -1,0 +1,61 @@
+PATH
+  remote: .
+  specs:
+    foreman_deployments (0.0.1)
+      foreman-tasks
+      safe_yaml
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    algebrick (0.7.3)
+    apipie-params (0.0.4)
+      rake
+    ast (2.1.0)
+    astrolabe (1.3.1)
+      parser (~> 2.2)
+    concurrent-ruby (0.9.1)
+    concurrent-ruby-edge (0.1.1)
+      concurrent-ruby (~> 0.9.1)
+    daemons (1.2.3)
+    dynflow (0.8.5)
+      algebrick (~> 0.7.0)
+      apipie-params
+      concurrent-ruby (~> 0.9.0)
+      concurrent-ruby-edge (~> 0.1.0)
+      multi_json
+    foreman-tasks (0.7.3)
+      daemons
+      dynflow (~> 0.8.3)
+      sequel
+      sinatra
+    multi_json (1.11.2)
+    parser (2.3.0.pre.2)
+      ast (>= 1.1, < 3.0)
+    powerpack (0.0.9)
+    rack (1.5.2)
+    rack-protection (1.5.3)
+      rack
+    rainbow (2.0.0)
+    rake (10.4.2)
+    rubocop (0.28.0)
+      astrolabe (~> 1.3)
+      parser (>= 2.2.0.pre.7, < 3.0)
+      powerpack (~> 0.0.6)
+      rainbow (>= 1.99.1, < 3.0)
+      ruby-progressbar (~> 1.4)
+    ruby-progressbar (1.7.5)
+    safe_yaml (1.0.4)
+    sequel (4.25.0)
+    sinatra (1.4.6)
+      rack (~> 1.4)
+      rack-protection (~> 1.4)
+      tilt (>= 1.3, < 3)
+    tilt (1.4.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  foreman_deployments!
+  rubocop
