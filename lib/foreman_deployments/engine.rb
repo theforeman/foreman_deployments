@@ -60,6 +60,10 @@ module ForemanDeployments
       SafeYAML::OPTIONS[:deserialize_symbols] = true
     end
 
+    initializer 'foreman_deployments.tasks_registration' do
+      ForemanDeployments.tasks.register_task('CreateResource', Tasks::CreationTaskDefinition)
+    end
+
     # Include concerns in this config.to_prepare block
     # config.to_prepare do
     #   ::Hostgroup.send :include, ForemanDeployments::Concerns::Hostgroup

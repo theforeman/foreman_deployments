@@ -18,9 +18,6 @@ module ForemanDeployments
     def create
       params[:user].delete :admin
 
-      # register tasks
-      ForemanDeployments.tasks.register_task('CreateResource', Tasks::CreationTaskDefinition)
-
       # stack definition
       # will be selected from DB as Stack object
       stack = [
