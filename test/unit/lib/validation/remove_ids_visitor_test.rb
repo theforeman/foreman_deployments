@@ -58,4 +58,19 @@ class RemoveIdsVisitorTest < ActiveSupport::TestCase
 
     assert_equal('resource', task1.parameters['test_resources'][0].output_key)
   end
+
+  test 'it does not change parameters that are not references' do
+    params = {
+      'test_resource_id' => 1,
+      'test_resource_ids' => [1, 2]
+    }
+    task1 = TestTask.new(params)
+
+    definition = ForemanDeployments::StackDefinition.new(
+      'task1' => task1
+    )
+    definition.accept(@visitor)
+
+    assert_equal(params, task1.parameters)
+  end
 end

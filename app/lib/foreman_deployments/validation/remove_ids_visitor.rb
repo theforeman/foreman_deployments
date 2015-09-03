@@ -24,7 +24,7 @@ module ForemanDeployments
 
       def remove_ids_from_hash(hash)
         hash.transform! do |key, item|
-          if singular_reference?(key) || multiple_references?(key)
+          if singular_reference?(key, item) || multiple_references?(key, item)
             [key.to_s.sub('_id', ''), remove_ids(item)]
           else
             [key, remove_ids(item)]
@@ -47,12 +47,12 @@ module ForemanDeployments
         ref
       end
 
-      def singular_reference?(key)
-        key.to_s.end_with?('_id')
+      def singular_reference?(key, value)
+        key.to_s.end_with?('_id') && value.is_a?(TaskReference)
       end
 
-      def multiple_references?(key)
-        key.to_s.end_with?('_ids')
+      def multiple_references?(key, values)
+        key.to_s.end_with?('_ids') && values.all? { |v| v.is_a?(TaskReference) }
       end
     end
   end
