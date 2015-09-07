@@ -2,9 +2,10 @@ module ForemanDeployments
   module Api
     module V2
       class DeploymentsController < BaseController
-        before_filter :find_resource, :only => [:show, :replace_configuration, :merge_configuration]
+        before_filter :find_resource, :only => [:show, :replace_configuration, :merge_configuration, :run]
 
         rescue_from ForemanDeployments::Config::InvalidValueException, :with => :unprocessable_entity_error
+        rescue_from ForemanDeployments::Validation::ValidationError, :with => :unprocessable_entity_error
 
         def_param_group :deployment do
           param :deployment, Hash, :required => true, :action_aware => true do
@@ -68,6 +69,19 @@ module ForemanDeployments
 
           # TODO: show deployment status (config, invalid, deploying, [reverting], deployed)
           @validation_result = ForemanDeployments::Validation::Validator.validate(@deployment.parsed_stack)
+        end
+
+        api :POST, '/deployments/:id/run/', N_('Start a deployment')
+        param :id, :identifier, :required => true
+        def run
+          # configure with user input
+          config = ForemanDeployments::Config::Configurator.new(@deployment.parsed_stack)
+          config.configure(@deployment.configuration)
+
+          # validate
+          ForemanDeployments::Validation::Validator.validate!(@deployment.parsed_stack)
+
+          ForemanTasks.async_task(Tasks::StackDeployAction, @deployment.parsed_stack)
         end
       end
     end

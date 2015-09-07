@@ -8,7 +8,7 @@ module ForemanDeployments
       end
 
       def validate(_value)
-        ValidationResult.new
+        ForemanDeployments::Validation::ValidationResult.new
       end
 
       def configure(value)

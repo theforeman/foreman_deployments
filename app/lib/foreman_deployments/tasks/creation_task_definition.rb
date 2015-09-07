@@ -12,9 +12,9 @@ module ForemanDeployments
       def validate
         obj = CreationTaskDefinition.create_object(parameters.configured)
         obj.valid?
-        ValidationResult.new(obj.errors.full_messages)
+        ForemanDeployments::Validation::ValidationResult.new(obj.errors.full_messages)
       rescue ActiveRecord::ActiveRecordError => e
-        ValidationResult.new(e.message)
+        ForemanDeployments::Validation::ValidationResult.new(e.message)
       end
 
       def preliminary_output

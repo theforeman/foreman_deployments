@@ -15,6 +15,15 @@ module ForemanDeployments
       def self.validate(stack_definition)
         Validator.new.validate(stack_definition)
       end
+
+      def self.validate!(stack_definition)
+        result = Validator.new.validate(stack_definition)
+        if result.valid?
+          result
+        else
+          fail ForemanDeployments::Validation::ValidationError.new(result, _('Stack definition is invalid'))
+        end
+      end
     end
   end
 end
