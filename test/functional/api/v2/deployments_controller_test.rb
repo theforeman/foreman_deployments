@@ -2,17 +2,41 @@ require 'test_helper'
 
 class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController::TestCase
   class FakeTask < ForemanDeployments::Tasks::BaseDefinition
+    def validate
+      ForemanDeployments::Validation::ValidationResult.new
+    end
+  end
+
+  class InvalidFakeTask < ForemanDeployments::Tasks::BaseDefinition
+    def validate
+      ForemanDeployments::Validation::ValidationResult.new([
+        'Some validation error'
+      ])
+    end
+  end
+
+  setup do
+    @stack = ForemanDeployments::Stack.create(
+      :name => 'stack1',
+      :definition => [
+        'Task1: !task:FakeTask',
+        '  param1: hardcoded',
+        'Task2: !task:FakeTask'
+      ].join("\n")
+    )
+    @deployment_params = { :name => 'A Deployment', :stack_id => @stack.id }
+    @deployment = ForemanDeployments::Deployment.create(
+      :name => 'Another deployment',
+      :configuration => ForemanDeployments::Configuration.new(:stack => @stack)
+    )
+
+    @registry = ForemanDeployments::Registry.new
+    ForemanDeployments.stubs(:registry).returns(@registry)
+    @registry.register_task(FakeTask)
+    @registry.register_task(InvalidFakeTask)
   end
 
   describe 'creating a deployment' do
-    setup do
-      @stack = ForemanDeployments::Stack.create(
-        :name => 'stack1',
-        :definition => 'SomeTask:!Task'
-      )
-      @deployment_params = { :name => 'A Deployment', :stack_id => @stack.id }
-    end
-
     test 'it creates a deployment' do
       assert_difference('ForemanDeployments::Deployment.count', 1) do
         post :create,  :deployment => @deployment_params
@@ -59,26 +83,6 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
   end
 
   describe 'configuration' do
-    setup do
-      @stack = ForemanDeployments::Stack.create(
-        :name => 'stack1',
-        :definition => [
-          'Task1: !task:FakeTask',
-          '  param1: hardcoded',
-          'Task2: !task:FakeTask'
-        ].join("\n")
-      )
-      @deployment = ForemanDeployments::Deployment.create(
-        :name => 'deployment1',
-        :configuration => ForemanDeployments::Configuration.new(:stack => @stack)
-      )
-      ForemanDeployments.registry.register_task(FakeTask)
-    end
-
-    teardown do
-      ForemanDeployments.registry.clear!
-    end
-
     describe 'new configuration' do
       test 'it configures the value' do
         task1_config = {
@@ -230,6 +234,43 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
         assert_equal({}, @deployment.configuration.get_config_for(stub(:task_id => 'Task1')))
         assert_equal({}, @deployment.configuration.get_config_for(stub(:task_id => 'Task2')))
       end
+    end
+  end
+
+  describe 'run deployments' do
+    test 'it plans the deployment tasks' do
+      @deployment.configuration.set_config_for(stub(:task_id => 'Task1'), 'param2' => '1')
+      @deployment.configuration.set_config_for(stub(:task_id => 'Task2'), 'param2' => '2')
+      @deployment.configuration.save
+
+      ForemanTasks.expects(:async_task).with do |main_task, parsed_stack|
+        assert_equal(ForemanDeployments::Tasks::StackDeployAction, main_task)
+        assert_equal({ 'param2' => '1' }, parsed_stack.tasks['Task1'].configuration)
+        assert_equal({ 'param2' => '2' }, parsed_stack.tasks['Task2'].configuration)
+      end
+
+      post :run, :id => @deployment.id
+      assert_response :success
+    end
+
+    test 'it fails when one of the tasks is not valid' do
+      invalid_stack = ForemanDeployments::Stack.create(
+        :name => 'invalid stack1',
+        :definition => [
+          'Task1: !task:InvalidFakeTask',
+          'Task2: !task:FakeTask'
+        ].join("\n")
+      )
+      deployment = ForemanDeployments::Deployment.create(
+        :name => 'invalid deployment',
+        :configuration => ForemanDeployments::Configuration.new(:stack => invalid_stack)
+      )
+
+      post :run, :id => deployment.id
+      assert_response :unprocessable_entity
+
+      parsed_response = JSON.parse(response.body)
+      assert_includes(parsed_response['error']['message'], 'Stack definition is invalid')
     end
   end
 end

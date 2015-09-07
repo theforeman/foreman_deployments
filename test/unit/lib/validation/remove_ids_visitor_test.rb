@@ -3,7 +3,7 @@ require 'test_helper'
 class RemoveIdsVisitorTest < ActiveSupport::TestCase
   class TestTask < ForemanDeployments::Tasks::BaseDefinition
     def validate
-      ForemanDeployments::ValidationResult.new
+      ForemanDeployments::Validation::ValidationResult.new
     end
 
     def preliminary_output

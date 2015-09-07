@@ -17,13 +17,13 @@ module ForemanDeployments
 
       def validate
         results = SearchTaskDefinition.search(parameters)
-        messages = nil
+        messages = []
         unless results.any?
           messages = [
             _('%s didn\'t return valid objects') % "#{parameters[:klass]}.search_for(\"#{parameters[:search_term]}\")"]
         end
 
-        ValidationResult.new(messages)
+        ForemanDeployments::Validation::ValidationResult.new(messages)
       end
 
       def preliminary_output

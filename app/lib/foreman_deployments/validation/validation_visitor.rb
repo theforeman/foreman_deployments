@@ -6,7 +6,7 @@ module ForemanDeployments
       end
 
       def result
-        @result ||= ForemanDeployments::ValidationResult.new
+        @result ||= ForemanDeployments::Validation::ValidationResult.new
       end
 
       private

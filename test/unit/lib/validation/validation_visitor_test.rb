@@ -3,7 +3,7 @@ require 'test_helper'
 class ValidationVisitorTest < ActiveSupport::TestCase
   class TestTask < ForemanDeployments::Tasks::BaseDefinition
     def validate
-      ForemanDeployments::ValidationResult.new
+      ForemanDeployments::Validation::ValidationResult.new
     end
 
     def preliminary_output
@@ -19,7 +19,7 @@ class ValidationVisitorTest < ActiveSupport::TestCase
     task_hash
   end
 
-  let(:valid_result) { ForemanDeployments::ValidationResult.new }
+  let(:valid_result) { ForemanDeployments::Validation::ValidationResult.new }
 
   setup do
     @visitor = ForemanDeployments::Validation::ValidationVisitor.new
@@ -51,7 +51,9 @@ class ValidationVisitorTest < ActiveSupport::TestCase
     valid_task1.expects(:validate).once.returns(valid_result)
 
     invalid_task2 = TestTask.new
-    invalid_task2.expects(:validate).once.returns(ForemanDeployments::ValidationResult.new(:name => 'Name must be unique'))
+    invalid_task2.expects(:validate).once.returns(
+      ForemanDeployments::Validation::ValidationResult.new(:name => 'Name must be unique')
+    )
 
     definition = ForemanDeployments::StackDefinition.new(
       :task1 => valid_task1,

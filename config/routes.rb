@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   resources :create_resources, module: 'ForemanDeployments'
 
-  namespace :foreman_deployments do
+  scope :module => :foreman_deployments do
     namespace :api do
       scope '(:apiv)',
             :module      => :v2,
@@ -12,6 +12,7 @@ Rails.application.routes.draw do
         resources :deployments, :only => [:create, :index, :show] do
           put :configuration, :on => :member, :to => :replace_configuration
           post :configuration, :on => :member, :to => :merge_configuration
+          post :run, :on => :member
         end
       end
     end
