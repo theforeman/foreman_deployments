@@ -11,5 +11,9 @@ module ForemanDeployments
     def stack
       configuration.stack if configuration
     end
+
+    def parsed_stack
+      @parsed_stack ||= ForemanDeployments::StackParser.parse(stack.definition) unless stack.nil?
+    end
   end
 end

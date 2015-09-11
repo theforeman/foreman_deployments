@@ -1,6 +1,60 @@
 require 'test_helper'
 
 class HashTest < ActiveSupport::TestCase
+  describe 'merge_configuration' do
+    test 'can set values' do
+      hash = ForemanDeployments::Config::Hash[]
+      hash.merge_configuration(:b => 3)
+      assert_equal({ 'b' => 3 }, hash.configured)
+    end
+
+    test 'calls configure on configurable items' do
+      configurable = mock
+      configurable.expects(:merge_configuration).with(123).once
+
+      hash = ForemanDeployments::Config::Hash[:a => configurable]
+      hash.merge_configuration(:a => 123)
+    end
+
+    test 'can delete value with setting nil' do
+      hash = ForemanDeployments::Config::Hash[]
+      hash.merge_configuration(:b => 2)
+      hash.merge_configuration(:b => nil)
+      assert_equal({}, hash.configured)
+    end
+
+    test 'keeps preconfigured values untouched' do
+      hash = ForemanDeployments::Config::Hash[:a => 1]
+      hash.merge_configuration(:b => 2)
+      assert_equal({ :a => 1 }, hash)
+    end
+
+    test 'can add additional preconfigured hashses' do
+      hash = ForemanDeployments::Config::Hash[]
+      hash.merge_configuration(:a => { :b => 1 })
+
+      assert_equal({}, hash['a'])
+      assert_equal(ForemanDeployments::Config::Hash, hash['a'].class)
+    end
+
+    test 'can add additional preconfigured arrays' do
+      hash = ForemanDeployments::Config::Hash[]
+      hash.merge_configuration(:a => [:b, :c])
+
+      assert_equal([nil, nil], hash['a'])
+      assert_equal(ForemanDeployments::Config::Array, hash['a'].class)
+    end
+
+    test 'raises exception when a value would be overwritten' do
+      hash = ForemanDeployments::Config::Hash[:a => 1]
+      e = assert_raises ForemanDeployments::Config::InvalidValueException do
+        hash.merge_configuration(:a => 2)
+      end
+      assert_match("You can't override values hardcoded in the stack definition", e.message)
+      assert_equal({ 'a' => 1 }, hash.configured)
+    end
+  end
+
   describe 'configure' do
     test 'can set values' do
       hash = ForemanDeployments::Config::Hash[]
@@ -16,11 +70,11 @@ class HashTest < ActiveSupport::TestCase
       hash.configure(:a => 123)
     end
 
-    test 'can delete value with setting nil' do
+    test 'it overwrites previous config' do
       hash = ForemanDeployments::Config::Hash[]
       hash.configure(:b => 2)
-      hash.configure(:b => nil)
-      assert_equal({}, hash.configured)
+      hash.configure(:a => 1)
+      assert_equal({ 'a' => 1 }, hash.configured)
     end
 
     test 'keeps preconfigured values untouched' do

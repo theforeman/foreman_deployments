@@ -1,9 +1,16 @@
 module ForemanDeployments
   module Config
     class Hash < ActiveSupport::HashWithIndifferentAccess
-      def configure(values)
+      def merge_configuration(values)
         values.each do |key, value|
-          configure_key(key, value)
+          configure_key(key, value, :merge_configuration)
+        end
+      end
+
+      def configure(values)
+        configuration_storage.clear
+        values.each do |key, value|
+          configure_key(key, value, :configure)
         end
       end
 
@@ -44,13 +51,13 @@ module ForemanDeployments
         @configuration_storage ||= {}
       end
 
-      def configure_key(key, value)
+      def configure_key(key, value, method)
         preconfigured = self[key]
 
         if preconfigured.nil?
           update_configuration_storage(key, value)
-        elsif preconfigured.respond_to?(:configure)
-          preconfigured.configure(value)
+        elsif preconfigured.respond_to?(method)
+          preconfigured.send(method, value)
         else
           fail(InvalidValueException, _("You can't override values hardcoded in the stack definition"))
         end

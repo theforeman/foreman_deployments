@@ -3,7 +3,8 @@ module ForemanDeployments
     module V2
       class DeploymentsController < BaseController
         before_filter :find_resource, :only => [:show, :configure, :configuration, :run]
-        before_filter :parse_stack, :only => [:show, :configure, :configuration, :run]
+
+        rescue_from ForemanDeployments::Config::InvalidValueException, :with => :unprocessable_entity_error
 
         def_param_group :deployment do
           param :deployment, Hash, :required => true, :action_aware => true do
@@ -36,9 +37,9 @@ module ForemanDeployments
         def configuration
           configuration_update = ForemanDeployments::Configuration.new(:values => params[:values])
 
-          ForemanDeployments::Config::LoadVisitor.load(@stack_definition, @deployment.configuration)
-          ForemanDeployments::Config::LoadVisitor.load(@stack_definition, configuration_update)
-          ForemanDeployments::Config::SaveVisitor.save(@stack_definition, @deployment.configuration)
+          config = ForemanDeployments::Config::Configurator.new(@deployment.parsed_stack)
+          config.merge(@deployment.configuration, configuration_update)
+          config.dump(@deployment.configuration)
 
           @deployment.configuration.save!
         end
@@ -46,26 +47,11 @@ module ForemanDeployments
         api :GET, '/deployments/:id/', N_('Get information about a deployment')
         param :id, :identifier, :required => true
         def show
-          ForemanDeployments::Config::LoadVisitor.load(@stack_definition, @deployment.configuration)
+          config = ForemanDeployments::Config::Configurator.new(@deployment.parsed_stack)
+          config.configure(@deployment.configuration)
+
           # TODO: show deployment status (config, invalid, deploying, [reverting], deployed)
-          @validation_result = ForemanDeployments::Validation::Validator.validate(@stack_definition)
-        end
-
-        api :POST, '/deployments/:id/run/', N_('Start a deployment')
-        param :id, :identifier, :required => true
-        def run
-          # configure with user input
-          ForemanDeployments::Config::LoadVisitor.load(@stack_definition, @deployment.configuration)
-
-          # validate
-          result = ForemanDeployments::Validation::Validator.validate(@stack_definition)
-          fail "Validation failed:\n #{result.messages}" unless result.valid?
-
-          ForemanTasks.sync_task(Tasks::StackDeployAction, @stack_definition)
-        end
-
-        def parse_stack
-          @stack_definition = ForemanDeployments::StackParser.parse(@deployment.stack.definition)
+          @validation_result = ForemanDeployments::Validation::Validator.validate(@deployment.parsed_stack)
         end
       end
     end

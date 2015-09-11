@@ -33,7 +33,7 @@ module ForemanDeployments
         object = object_type.new
         object_params.each do |key, value|
           begin
-            object.attributes = { key => value }
+            object.send("#{key}=", value)
           rescue ActiveRecord::UnknownAttributeError => e
             # TODO: add this to warnings
             e.message

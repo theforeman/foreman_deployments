@@ -64,6 +64,7 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
         :name => 'stack1',
         :definition => [
           'Task1: !task:FakeTask',
+          '  param1: hardcoded',
           'Task2: !task:FakeTask'
         ].join("\n")
       )
@@ -98,6 +99,26 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
       @deployment.reload
       assert_equal(task1_config, @deployment.configuration.get_config_for(stub(:task_id => 'Task1')))
       assert_equal(task2_config, @deployment.configuration.get_config_for(stub(:task_id => 'Task2')))
+    end
+
+    test 'it fails when a hardcoded value would be overwritten' do
+      task1_config = {
+        'organization_id' => '1',
+        'param1' => 'new_value'
+      }
+      values = {
+        :Task1 => task1_config
+      }
+
+      put :configuration, :id => @deployment.id, :values => values
+      assert_response :unprocessable_entity
+
+      parsed_response = JSON.parse(response.body)
+      assert_includes(parsed_response['error']['message'], 'You can\'t override values hardcoded in the stack definition')
+
+      @deployment.reload
+      assert_equal({}, @deployment.configuration.get_config_for(stub(:task_id => 'Task1')))
+      assert_equal({}, @deployment.configuration.get_config_for(stub(:task_id => 'Task2')))
     end
   end
 end

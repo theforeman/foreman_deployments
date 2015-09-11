@@ -24,8 +24,12 @@ module ForemanDeployments
         fail NotImplementedError, "Method 'preliminary_output' needs to be implemented"
       end
 
-      def configure(additional_parameters)
-        @parameters.configure(additional_parameters)
+      def configure(parameters)
+        @parameters.configure(parameters)
+      end
+
+      def merge_configuration(additional_parameters)
+        @parameters.merge_configuration(additional_parameters)
       end
 
       def configuration

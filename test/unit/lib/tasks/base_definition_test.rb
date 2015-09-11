@@ -58,37 +58,50 @@ class BaseDefinitionTest < ActiveSupport::TestCase
     end
   end
 
-  test 'configure deep merges the parameters' do
-    task = ForemanDeployments::Tasks::BaseDefinition.new
+  describe 'configuration' do
+    setup do
+      @parameters1 = {
+        'count' => 1,
+        'should_not' => 'be_touched',
+        'parameters' => {
+          'a' => 1,
+          'b' => 2
+        }
+      }
+      @parameters2 = {
+        'count' => 2,
+        'parameters' => {
+          'a' => 1,
+          'c' => 3
+        }
+      }
+    end
 
-    parameters1 = {
-      'count' => 1,
-      'should_not' => 'be_touched',
-      'parameters' => {
-        'a' => 1,
-        'b' => 2
-      }
-    }
-    parameters2 = {
-      'count' => 2,
-      'parameters' => {
-        'a' => 1,
-        'c' => 3
-      }
-    }
-    expected_params = {
-      'count' => 2,
-      'should_not' => 'be_touched',
-      'parameters' => {
-        'a' => 1,
-        'b' => 2,
-        'c' => 3
-      }
-    }
+    test 'configure deep merges the parameters' do
+      task = ForemanDeployments::Tasks::BaseDefinition.new
 
-    task.configure(parameters1)
-    task.configure(parameters2)
-    assert_equal(expected_params, task.configuration)
+      task.configure(@parameters1)
+      task.configure(@parameters2)
+      assert_equal(@parameters2, task.configuration)
+    end
+
+    test 'merge_configuration deep merges the parameters' do
+      task = ForemanDeployments::Tasks::BaseDefinition.new
+
+      expected_params = {
+        'count' => 2,
+        'should_not' => 'be_touched',
+        'parameters' => {
+          'a' => 1,
+          'b' => 2,
+          'c' => 3
+        }
+      }
+
+      task.configure(@parameters1)
+      task.merge_configuration(@parameters2)
+      assert_equal(expected_params, task.configuration)
+    end
   end
 
   describe 'accept' do

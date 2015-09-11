@@ -1,10 +1,18 @@
 module ForemanDeployments
   module Config
     class Array < ::Array
-      def configure(values)
+      def merge_configuration(values)
         values = ensure_hash(values)
         values.map do |index, value|
-          configure_index(index, value)
+          configure_index(index, value, :merge_configuration)
+        end
+      end
+
+      def configure(values)
+        values = ensure_hash(values)
+        configuration_storage.clear
+        values.map do |index, value|
+          configure_index(index, value, :configure)
         end
       end
 
@@ -60,10 +68,10 @@ module ForemanDeployments
         end
         [index, value]
       rescue ArgumentError
-        raise(InvalidValueException, _("Keys '%s' isn't numeric value") % index)
+        raise(InvalidValueException, _("Key '%s' isn't numeric value") % index)
       end
 
-      def configure_index(index, value)
+      def configure_index(index, value, method)
         preconfigured = self[index]
 
         if preconfigured.nil?
@@ -72,8 +80,8 @@ module ForemanDeployments
           else
             configuration_storage[index] = value
           end
-        elsif preconfigured.respond_to?(:configure)
-          preconfigured.configure(value)
+        elsif preconfigured.respond_to?(method)
+          preconfigured.send(method, value)
         else
           fail(InvalidValueException, _("You can't override values hardcoded in the stack definition"))
         end

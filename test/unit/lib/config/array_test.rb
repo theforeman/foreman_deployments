@@ -1,6 +1,75 @@
 require 'test_helper'
 
 class ArrayTest < ActiveSupport::TestCase
+  describe 'merge_configuration' do
+    setup do
+      @array = ForemanDeployments::Config::Array[nil, nil]
+    end
+
+    test 'can set values to empty slots' do
+      @array.merge_configuration([1, 2])
+      assert_equal([1, 2], @array.configured)
+    end
+
+    test 'can be configured with shorter array' do
+      @array.merge_configuration([1])
+      assert_equal([1, nil], @array.configured)
+    end
+
+    test 'can be configured with hash' do
+      @array.merge_configuration(1 => :b)
+      assert_equal([nil, :b], @array.configured)
+    end
+
+    test 'can be configured with hash using string keys' do
+      @array.merge_configuration('1' => :b)
+      assert_equal([nil, :b], @array.configured)
+    end
+
+    test 'raises exception when configured with hash using non-numeric string keys' do
+      e = assert_raises ForemanDeployments::Config::InvalidValueException do
+        @array.merge_configuration('abc' => :b)
+      end
+      assert_match("Key 'abc' isn't numeric value", e.message)
+      assert_equal([nil, nil], @array.configured)
+    end
+
+    test 'can delete value with setting nil' do
+      @array.configure([1, 2])
+      @array.merge_configuration(1 => nil)
+      assert_equal([1, nil], @array.configured)
+    end
+
+    test 'calls configure on configurable items' do
+      configurable = mock
+      configurable.expects(:merge_configuration).with(123).once
+      array = ForemanDeployments::Config::Array[configurable]
+      array.merge_configuration([123])
+    end
+
+    test 'keeps preconfigured values untouched' do
+      @array.configure([1, 2])
+      assert_equal([nil, nil], @array)
+    end
+
+    test 'raises exception when extra value is added' do
+      e = assert_raises ForemanDeployments::Config::InvalidValueException do
+        @array.merge_configuration([1, 2, 3])
+      end
+      assert_match("Can't configure items outside the range", e.message)
+      assert_equal([nil, nil], @array.configured)
+    end
+
+    test 'raises exception when a value would be overwritten' do
+      array = ForemanDeployments::Config::Array[nil, 1]
+      e = assert_raises ForemanDeployments::Config::InvalidValueException do
+        array.merge_configuration([1, 2])
+      end
+      assert_match("You can't override values hardcoded in the stack definition", e.message)
+      assert_equal([1, 1], array.configured)
+    end
+  end
+
   describe 'configure' do
     setup do
       @array = ForemanDeployments::Config::Array[nil, nil]
@@ -9,6 +78,12 @@ class ArrayTest < ActiveSupport::TestCase
     test 'can set values to empty slots' do
       @array.configure([1, 2])
       assert_equal([1, 2], @array.configured)
+    end
+
+    test 'overrides the config when called twice' do
+      @array.configure([1, 2])
+      @array.configure([3])
+      assert_equal([3, nil], @array.configured)
     end
 
     test 'can be configured with shorter array' do
@@ -30,14 +105,8 @@ class ArrayTest < ActiveSupport::TestCase
       e = assert_raises ForemanDeployments::Config::InvalidValueException do
         @array.configure('abc' => :b)
       end
-      assert_match("Keys 'abc' isn't numeric value", e.message)
+      assert_match("Key 'abc' isn't numeric value", e.message)
       assert_equal([nil, nil], @array.configured)
-    end
-
-    test 'can delete value with setting nil' do
-      @array.configure([1, 2])
-      @array.configure(1 => nil)
-      assert_equal([1, nil], @array.configured)
     end
 
     test 'calls configure on configurable items' do
