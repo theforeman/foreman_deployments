@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class RemoveIdsVisitorTest < ActiveSupport::TestCase
-  class TestTask < ForemanDeployments::Tasks::BaseDefinition
+  class TestTask < ForemanDeployments::Tasks::CreationTaskDefinition
     def validate
       ForemanDeployments::Validation::ValidationResult.new
     end

@@ -22,10 +22,10 @@ module ForemanDeployments
       # will be selected from DB as Stack object
       stack = [
         'user1: !task:SearchResource',
-        '  klass: User',
+        '  class: User',
         '  search_term: "1"',
         'usergroup1: !task:CreateResource',
-        '  klass: Usergroup',
+        '  class: Usergroup',
         '  params:',
         '    name: zzz',
         '    user_ids:',

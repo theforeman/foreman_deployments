@@ -6,7 +6,7 @@ class SearchTaskDefinitionTest < ActiveSupport::TestCase
 
   setup do
     @params = {
-      'klass' => 'SearchTaskDefinitionTest::DummyModel',
+      'class' => 'SearchTaskDefinitionTest::DummyModel',
       'search_term' => 'a = b'
     }
     @params = HashWithIndifferentAccess[@params]
@@ -20,7 +20,10 @@ class SearchTaskDefinitionTest < ActiveSupport::TestCase
       result = task.validate
 
       assert_equal(1, result.messages.count)
-      assert_match(/didn't return valid objects/, result.messages.first)
+      assert_match(
+        "SearchTaskDefinitionTest::DummyModel.search_for('a = b') didn't return valid objects",
+        result.messages.first
+      )
     end
 
     test 'succeeds, if there is at least one matching object' do

@@ -2,7 +2,7 @@ module ForemanDeployments
   module Validation
     class RemoveIdsVisitor
       def visit(subject)
-        if subject.is_a? ForemanDeployments::Tasks::BaseDefinition
+        if subject.is_a? ForemanDeployments::Tasks::CreationTaskDefinition
           remove_ids(subject.parameters)
         end
       end

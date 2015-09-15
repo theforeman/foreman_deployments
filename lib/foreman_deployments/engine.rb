@@ -73,6 +73,7 @@ module ForemanDeployments
     config.to_prepare do
       ForemanDeployments.registry.register_task(ForemanDeployments::Tasks::CreationTaskDefinition)
       ForemanDeployments.registry.register_task(ForemanDeployments::Tasks::SearchTaskDefinition)
+      ForemanDeployments.registry.register_task(ForemanDeployments::Tasks::WaitUntilBuiltTaskDefinition)
       ForemanDeployments.registry.register_input(ForemanDeployments::Inputs::Value)
     end
 
