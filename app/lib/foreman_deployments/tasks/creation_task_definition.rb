@@ -18,27 +18,31 @@ module ForemanDeployments
       end
 
       def preliminary_output
-        CreationTaskDefinition.create_output(CreationTaskDefinition.create_object(parameters.configured))
+        self.class.create_output(self.class.create_object(parameters.configured))
       end
 
       def dynflow_action
-        ForemanDeployments::Tasks::CreationTaskDefinition::Action
+        self.class::Action
       end
 
       def self.create_object(parameters)
-        object_type = parameters['klass']
-        object_params = parameters['params']
+        object_type = parameters['class']
+        object_params = parameters['params'] || {}
 
         object_type = object_type.constantize if object_type.is_a? String
         object = object_type.new
+
+        set_parameters(object, object_params)
+      end
+
+      def self.set_parameters(object, object_params)
         object_params.each do |key, value|
-          begin
+          if object.respond_to?("#{key}=")
             object.send("#{key}=", value)
-          rescue ActiveRecord::UnknownAttributeError => e
-            # TODO: add this to warnings
-            e.message
+            # TODO: else, add warning message
           end
         end
+
         object
       end
 
@@ -49,6 +53,15 @@ module ForemanDeployments
 
       def self.tag_name
         'CreateResource'
+      end
+
+      def self.build(parameters)
+        case parameters['class']
+        when 'Host', 'Host::Managed'
+          HostCreationTaskDefinition.new(parameters)
+        else
+          CreationTaskDefinition.new(parameters)
+        end
       end
     end
   end

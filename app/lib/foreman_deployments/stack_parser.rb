@@ -75,14 +75,14 @@ module ForemanDeployments
       @registry.available_tasks.each do |task_name, task_class|
         whitelist << task_prefix(task_name)
         YAML.add_domain_type(TAG_DOMAIN, 'task:' + task_name) do |_tag, params|
-          task_class.constantize.new(params)
+          task_class.constantize.build(params)
         end
       end
 
       @registry.available_inputs.each do |input_name, input_class|
         whitelist << input_prefix(input_name)
         YAML.add_domain_type(TAG_DOMAIN, 'input:' + input_name) do |_tag, params|
-          input_class.constantize.new(params)
+          input_class.constantize.build(params)
         end
       end
       whitelist

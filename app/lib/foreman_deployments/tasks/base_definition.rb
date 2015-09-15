@@ -52,6 +52,10 @@ module ForemanDeployments
         name.split('::').last
       end
 
+      def self.build(params)
+        new(params)
+      end
+
       private
 
       def visit_parameters(visitor, value)

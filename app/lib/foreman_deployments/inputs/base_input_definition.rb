@@ -30,6 +30,10 @@ module ForemanDeployments
       def self.tag_name
         name.split('::').last
       end
+
+      def self.build(*params)
+        new(params)
+      end
     end
   end
 end
