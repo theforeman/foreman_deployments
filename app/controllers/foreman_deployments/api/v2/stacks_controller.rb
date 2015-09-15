@@ -2,7 +2,7 @@ module ForemanDeployments
   module Api
     module V2
       class StacksController < BaseController
-        before_filter :find_resource, :only => [:show]
+        before_filter :find_resource, :only => [:show, :update]
 
         def_param_group :stack do
           param :stack, Hash, :required => true, :action_aware => true do
@@ -18,6 +18,18 @@ module ForemanDeployments
           # parse the stack to see if it's valid
           ForemanDeployments::StackParser.parse(@stack.definition)
           process_response @stack.save
+        end
+
+        api :PUT, '/stacks/:id/', N_('Update imported stack')
+        param_group :stack, :as => :update
+        param :id, :identifier, :required => true
+        def update
+          if !@stack.configurations.empty? && !params[:stack][:definition].nil?
+            render :json => { :error => _("Can't update stack that has been configured") }, :status => :unprocessable_entity
+          else
+            ForemanDeployments::StackParser.parse(params[:stack][:definition]) if params[:stack][:definition]
+            process_response @stack.update_attributes(params[:stack])
+          end
         end
 
         api :GET, '/stacks/', N_('List saved stacks')

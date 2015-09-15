@@ -8,7 +8,7 @@ Rails.application.routes.draw do
             :defaults    => { :apiv => 'v2' },
             :apiv        => /v1|v2/,
             :constraints => ApiConstraints.new(:version => 2) do
-        resources :stacks, :only => [:create, :index, :show]
+        resources :stacks, :only => [:create, :update, :index, :show]
         resources :deployments, :only => [:create, :index, :show] do
           put :configuration, :on => :member, :to => :replace_configuration
           post :configuration, :on => :member, :to => :merge_configuration
