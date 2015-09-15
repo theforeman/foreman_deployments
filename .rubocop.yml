@@ -37,3 +37,7 @@ Style/ClassAndModuleChildren:
 
 Style/GuardClause:
   Enabled: false
+
+TrivialAccessors:
+  Enabled: true
+  ExactNameMatch: true

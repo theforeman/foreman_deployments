@@ -16,6 +16,10 @@ module ForemanDeployments
         @configured = value
       end
 
+      def configuration
+        @configured
+      end
+
       def to_hash
         {
           '_type' => 'input',
