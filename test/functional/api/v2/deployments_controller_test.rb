@@ -58,7 +58,7 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
     end
   end
 
-  describe 'configuring deployments' do
+  describe 'configuration' do
     setup do
       @stack = ForemanDeployments::Stack.create(
         :name => 'stack1',
@@ -79,46 +79,157 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
       ForemanDeployments.registry.clear!
     end
 
-    test 'it configures the value' do
-      task1_config = {
-        'organization_id' => '1',
-        'location_id' => '2'
-      }
-      task2_config = {
-        'organization_id' => '3',
-        'location_id' => '4'
-      }
-      values = {
-        :Task1 => task1_config,
-        :Task2 => task2_config
-      }
+    describe 'new configuration' do
+      test 'it configures the value' do
+        task1_config = {
+          'organization_id' => '1',
+          'location_id' => '2'
+        }
+        task2_config = {
+          'organization_id' => '3',
+          'location_id' => '4'
+        }
+        values = {
+          :Task1 => task1_config,
+          :Task2 => task2_config
+        }
 
-      put :configuration, :id => @deployment.id, :values => values
-      assert_response :success
+        put :replace_configuration, :id => @deployment.id, :values => values
+        assert_response :success
 
-      @deployment.reload
-      assert_equal(task1_config, @deployment.configuration.get_config_for(stub(:task_id => 'Task1')))
-      assert_equal(task2_config, @deployment.configuration.get_config_for(stub(:task_id => 'Task2')))
+        @deployment.reload
+        assert_equal(task1_config, @deployment.configuration.get_config_for(stub(:task_id => 'Task1')))
+        assert_equal(task2_config, @deployment.configuration.get_config_for(stub(:task_id => 'Task2')))
+      end
+
+      test 'it replaces the values from the previous configuration' do
+        previous_config = {
+          'organization_id' => '1',
+          'location_id' => '2'
+        }
+        new_config = {
+          'location_id' => '3',
+          'host_id' => '4'
+        }
+
+        @deployment.configuration.set_config_for(stub(:task_id => 'Task1'), previous_config)
+        @deployment.configuration.save
+
+        put :replace_configuration, :id => @deployment.id, :values => { :Task1 => new_config }
+        assert_response :success
+
+        @deployment.reload
+        assert_equal(new_config, @deployment.configuration.get_config_for(stub(:task_id => 'Task1')))
+      end
+
+      test 'it fails when a hardcoded value would be overwritten' do
+        task1_config = {
+          'organization_id' => '1',
+          'param1' => 'new_value'
+        }
+        values = {
+          :Task1 => task1_config
+        }
+
+        put :replace_configuration, :id => @deployment.id, :values => values
+        assert_response :unprocessable_entity
+
+        parsed_response = JSON.parse(response.body)
+        assert_includes(parsed_response['error']['message'], 'You can\'t override values hardcoded in the stack definition')
+
+        @deployment.reload
+        assert_equal({}, @deployment.configuration.get_config_for(stub(:task_id => 'Task1')))
+        assert_equal({}, @deployment.configuration.get_config_for(stub(:task_id => 'Task2')))
+      end
     end
 
-    test 'it fails when a hardcoded value would be overwritten' do
-      task1_config = {
-        'organization_id' => '1',
-        'param1' => 'new_value'
-      }
-      values = {
-        :Task1 => task1_config
-      }
+    describe 'merge configuration' do
+      test 'it configures the value' do
+        task1_config = {
+          'organization_id' => '1',
+          'location_id' => '2'
+        }
+        task2_config = {
+          'organization_id' => '3',
+          'location_id' => '4'
+        }
+        values = {
+          :Task1 => task1_config,
+          :Task2 => task2_config
+        }
 
-      put :configuration, :id => @deployment.id, :values => values
-      assert_response :unprocessable_entity
+        post :merge_configuration, :id => @deployment.id, :values => values
+        assert_response :success
 
-      parsed_response = JSON.parse(response.body)
-      assert_includes(parsed_response['error']['message'], 'You can\'t override values hardcoded in the stack definition')
+        @deployment.reload
+        assert_equal(task1_config, @deployment.configuration.get_config_for(stub(:task_id => 'Task1')))
+        assert_equal(task2_config, @deployment.configuration.get_config_for(stub(:task_id => 'Task2')))
+      end
 
-      @deployment.reload
-      assert_equal({}, @deployment.configuration.get_config_for(stub(:task_id => 'Task1')))
-      assert_equal({}, @deployment.configuration.get_config_for(stub(:task_id => 'Task2')))
+      test 'it merges with the values from the previous configuration' do
+        previous_config = {
+          'organization_id' => '1',
+          'location_id' => '2'
+        }
+        new_config = {
+          'location_id' => '3',
+          'host_id' => '4'
+        }
+        expected_config = previous_config.merge(new_config)
+
+        @deployment.configuration.set_config_for(stub(:task_id => 'Task1'), previous_config)
+        @deployment.configuration.save
+
+        post :merge_configuration, :id => @deployment.id, :values => { :Task1 => new_config }
+        assert_response :success
+
+        @deployment.reload
+        assert_equal(expected_config, @deployment.configuration.get_config_for(stub(:task_id => 'Task1')))
+      end
+
+      test 'it allows for removing values when nil (null in json) is passed' do
+        previous_config = {
+          'organization_id' => '1',
+          'location_id' => '2'
+        }
+        new_config = {
+          'location_id' => nil,
+          'host_id' => '4'
+        }
+        expected_config = {
+          'organization_id' => '1',
+          'host_id' => '4'
+        }
+
+        @deployment.configuration.set_config_for(stub(:task_id => 'Task1'), previous_config)
+        @deployment.configuration.save
+
+        post :merge_configuration, :id => @deployment.id, :values => { :Task1 => new_config }
+        assert_response :success
+
+        @deployment.reload
+        assert_equal(expected_config, @deployment.configuration.get_config_for(stub(:task_id => 'Task1')))
+      end
+
+      test 'it fails when a hardcoded value would be overwritten' do
+        task1_config = {
+          'organization_id' => '1',
+          'param1' => 'new_value'
+        }
+        values = {
+          :Task1 => task1_config
+        }
+
+        post :merge_configuration, :id => @deployment.id, :values => values
+        assert_response :unprocessable_entity
+
+        parsed_response = JSON.parse(response.body)
+        assert_includes(parsed_response['error']['message'], 'You can\'t override values hardcoded in the stack definition')
+
+        @deployment.reload
+        assert_equal({}, @deployment.configuration.get_config_for(stub(:task_id => 'Task1')))
+        assert_equal({}, @deployment.configuration.get_config_for(stub(:task_id => 'Task2')))
+      end
     end
   end
 end

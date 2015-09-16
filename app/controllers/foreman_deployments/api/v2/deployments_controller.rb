@@ -2,7 +2,7 @@ module ForemanDeployments
   module Api
     module V2
       class DeploymentsController < BaseController
-        before_filter :find_resource, :only => [:show, :configure, :configuration, :run]
+        before_filter :find_resource, :only => [:show, :replace_configuration, :merge_configuration]
 
         rescue_from ForemanDeployments::Config::InvalidValueException, :with => :unprocessable_entity_error
 
@@ -30,15 +30,31 @@ module ForemanDeployments
           @deployments = resource_scope
         end
 
-        api :PUT, '/deployments/:id/configuration/', N_('Configure a deployment')
+        api :PUT, '/deployments/:id/configuration/', N_('Merge a configuration update with current values')
         param :id, :identifier, :required => true
-        param :values, Hash, :required => true,
-                             :desc => N_('Hash with configuration for tasks (Format: task ID => configuration values).')
-        def configuration
+        param :values, Hash,
+              :required => true,
+              :desc => N_('Hash with configuration update for tasks (Format: task ID => configuration values).')
+        def merge_configuration
           configuration_update = ForemanDeployments::Configuration.new(:values => params[:values])
 
           config = ForemanDeployments::Config::Configurator.new(@deployment.parsed_stack)
           config.merge(@deployment.configuration, configuration_update)
+          config.dump(@deployment.configuration)
+
+          @deployment.configuration.save!
+        end
+
+        api :PUT, '/deployments/:id/configuration/', N_('Configure a deployment')
+        param :id, :identifier, :required => true
+        param :values, Hash,
+              :required => true,
+              :desc => N_('Hash with configuration for tasks (Format: task ID => configuration values).')
+        def replace_configuration
+          new_configuration = ForemanDeployments::Configuration.new(:values => params[:values])
+
+          config = ForemanDeployments::Config::Configurator.new(@deployment.parsed_stack)
+          config.configure(new_configuration)
           config.dump(@deployment.configuration)
 
           @deployment.configuration.save!

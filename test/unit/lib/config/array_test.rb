@@ -26,6 +26,14 @@ class ArrayTest < ActiveSupport::TestCase
       assert_equal([nil, :b], @array.configured)
     end
 
+    test 'raises exception when configured with value other than hash or array' do
+      e = assert_raises ForemanDeployments::Config::InvalidValueException do
+        @array.merge_configuration(1)
+      end
+      assert_match("Unexpected type 'Fixnum', only hash or array is accepted", e.message)
+      assert_equal([nil, nil], @array.configured)
+    end
+
     test 'raises exception when configured with hash using non-numeric string keys' do
       e = assert_raises ForemanDeployments::Config::InvalidValueException do
         @array.merge_configuration('abc' => :b)
@@ -99,6 +107,14 @@ class ArrayTest < ActiveSupport::TestCase
     test 'can be configured with hash using string keys' do
       @array.configure('1' => :b)
       assert_equal([nil, :b], @array.configured)
+    end
+
+    test 'raises exception when configured with value other than hash or array' do
+      e = assert_raises ForemanDeployments::Config::InvalidValueException do
+        @array.configure(1)
+      end
+      assert_match("Unexpected type 'Fixnum', only hash or array is accepted", e.message)
+      assert_equal([nil, nil], @array.configured)
     end
 
     test 'raises exception when configured with hash using non-numeric string keys' do

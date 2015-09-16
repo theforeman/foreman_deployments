@@ -57,7 +57,7 @@ module ForemanDeployments
         elsif values.is_a? ::Array
           ::Hash[values.map.with_index { |value, index| sanitize_pair(index, value) }]
         else
-          fail("Unexpected type #{values.class}")
+          fail(InvalidValueException, _("Unexpected type '%s', only hash or array is accepted") % values.class)
         end
       end
 

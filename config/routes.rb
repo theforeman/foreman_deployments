@@ -10,7 +10,8 @@ Rails.application.routes.draw do
             :constraints => ApiConstraints.new(:version => 2) do
         resources :stacks, :only => [:create, :index, :show]
         resources :deployments, :only => [:create, :index, :show] do
-          put :configuration, :on => :member
+          put :configuration, :on => :member, :to => :replace_configuration
+          post :configuration, :on => :member, :to => :merge_configuration
         end
       end
     end
