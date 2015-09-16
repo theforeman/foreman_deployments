@@ -5,8 +5,9 @@ module ForemanDeployments
       attr_reader :planned
 
       def initialize(params = {})
+        params ||= {}
         @task_id = task_id
-        @parameters = params
+        @parameters = HashWithIndifferentAccess[params]
       end
 
       def plan(parent_task)

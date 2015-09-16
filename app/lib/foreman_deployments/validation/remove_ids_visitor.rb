@@ -13,14 +13,14 @@ module ForemanDeployments
         pairs = hash.map do |key, value|
           transform_pair(key, value)
         end
-        Hash[pairs]
+        HashWithIndifferentAccess[pairs]
       end
 
       def transform_pair(key, value)
         if singular_reference?(key, value)
           [key.to_s.sub('_id', ''), remove_id_from_reference(value)]
         elsif multiple_references?(key, value)
-          [key.to_s.sub('_id', ''),  value.map { |item| remove_id_from_reference(item) }]
+          [key.to_s.sub('_id', ''), handle_multiple_values(value)]
         elsif value.is_a? Hash
           [key, remove_ids(value)]
         else
@@ -33,7 +33,9 @@ module ForemanDeployments
       end
 
       def multiple_references?(key, value)
-        key.to_s.end_with?('_ids') && value.any? { |i| i.is_a?(TaskReference) }
+        key.to_s.end_with?('_ids') && (
+         value.is_a?(TaskReference) ||
+         value.any? { |i| i.is_a?(TaskReference) })
       end
 
       def remove_id_from_reference(ref)
@@ -43,6 +45,11 @@ module ForemanDeployments
           ref.output_key.gsub!(/[.]id$/, '')
         end
         ref
+      end
+
+      def handle_multiple_values(value)
+        return remove_id_from_reference(value) if value.is_a? TaskReference
+        value.map { |item| remove_id_from_reference(item) }
       end
     end
   end
