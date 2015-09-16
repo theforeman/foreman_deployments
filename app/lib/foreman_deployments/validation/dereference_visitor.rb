@@ -9,7 +9,8 @@ module ForemanDeployments
 
       def get_preliminary_output(task)
         cached(task) do
-          task.preliminary_output(dereference(task.parameters))
+          task.parameters = dereference(task.parameters)
+          task.preliminary_output
         end
       end
     end

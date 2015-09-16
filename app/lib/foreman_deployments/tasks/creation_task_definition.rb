@@ -17,7 +17,7 @@ module ForemanDeployments
         ValidationResult.new(e.message)
       end
 
-      def preliminary_output(parameters)
+      def preliminary_output
         CreationTaskDefinition.create_output(CreationTaskDefinition.create_object(parameters.configured))
       end
 

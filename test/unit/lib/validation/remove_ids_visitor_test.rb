@@ -6,7 +6,7 @@ class RemoveIdsVisitorTest < ActiveSupport::TestCase
       ForemanDeployments::ValidationResult.new
     end
 
-    def preliminary_output(_parameters)
+    def preliminary_output
       {}
     end
   end

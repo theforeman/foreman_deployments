@@ -39,7 +39,7 @@ class SearchTaskDefinitionTest < ActiveSupport::TestCase
     search_result1.expects(:id).returns(1)
     DummyModel.expects(:search_for).returns([search_result1])
 
-    result = task.preliminary_output(@params)
+    result = task.preliminary_output
 
     assert_equal [search_result1], result['results']
   end

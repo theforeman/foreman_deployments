@@ -20,7 +20,7 @@ module ForemanDeployments
         fail NotImplementedError, "Method 'validate' needs to be implemented"
       end
 
-      def preliminary_output(_parameters)
+      def preliminary_output
         fail NotImplementedError, "Method 'preliminary_output' needs to be implemented"
       end
 
