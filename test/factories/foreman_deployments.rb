@@ -59,4 +59,12 @@ FactoryGirl.define do
       end
     end
   end
+
+  factory :foreman_task, :class => ForemanTasks::Task do
+    sequence(:label) { |n| "task#{n}" }
+    sequence(:id) { |n| 'b8317062-c664-4792-9d9a-8167b23c%04d' % n }
+    type 'Tasks::StackDeployAction'
+    state 'pending'
+    result 'success'
+  end
 end

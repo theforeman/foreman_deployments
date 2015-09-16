@@ -288,6 +288,17 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
       assert_response :success
     end
 
+    test 'it saves the task id' do
+      task = FactoryGirl.build(:foreman_task)
+      ForemanTasks.stubs(:async_task).returns(task)
+
+      post :run, :id => @deployment.id
+      assert_response :success
+
+      @deployment.reload
+      assert_equal(task.id, @deployment.task_id)
+    end
+
     test 'it fails when one of the tasks is not valid' do
       invalid_stack = FactoryGirl.create(:stack, :with_taxonomy,
                                          :definition => [
