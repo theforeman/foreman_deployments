@@ -62,6 +62,7 @@ module ForemanDeployments
 
     initializer 'foreman_deployments.tasks_registration' do
       ForemanDeployments.tasks.register_task('CreateResource', Tasks::CreationTaskDefinition)
+      ForemanDeployments.tasks.register_task('SearchResource', Tasks::SearchTaskDefinition)
     end
 
     # Include concerns in this config.to_prepare block

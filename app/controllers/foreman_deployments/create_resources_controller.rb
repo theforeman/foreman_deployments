@@ -16,30 +16,29 @@ module ForemanDeployments
 
     # rubocop:disable Metrics/MethodLength
     def create
-      params[:user].delete :admin
+      params[:user].delete :admin if params[:user]
 
       # stack definition
       # will be selected from DB as Stack object
       stack = [
-        'user1: !task:CreateResource',
+        'user1: !task:SearchResource',
         '  klass: User',
-        '  params:',
-        '    mail: test@foreman.org',
+        '  search_term: "1"',
         'usergroup1: !task:CreateResource',
         '  klass: Usergroup',
         '  params:',
         '    name: zzz',
         '    user_ids:',
-        '      - !reference',
+        '      !reference',
         '        object: user1',
-        '        field: object.id'
+        '        field: result.ids'
       ].join("\n")
 
       # parse the stack
       stack_definition = ForemanDeployments::StackParser.parse(stack)
 
       # configure with user input
-      stack_definition.tasks['user1'].configure('params' => params[:user])
+      # stack_definition.tasks['user1'].configure('params' => params[:user])
       stack_definition.tasks['usergroup1'].configure({})
 
       # validate

@@ -23,7 +23,7 @@ module ForemanDeployments
       when Array
         return value.map { |obj| dereference(obj) }
       when Hash
-        return Hash[value.map { |key, obj| [key, dereference(obj)] }]
+        return HashWithIndifferentAccess[value.map { |key, obj| [key, dereference(obj)] }]
       else
         return value
       end
