@@ -14,6 +14,14 @@ module ForemanDeployments
       visitor.visit(self)
     end
 
+    def validate!
+      ForemanDeployments::Validation::Validator.validate!(self)
+    end
+
+    def validate
+      ForemanDeployments::Validation::Validator.validate(self)
+    end
+
     def to_hash
       tasks
     end

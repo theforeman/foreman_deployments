@@ -47,7 +47,7 @@ module ForemanDeployments
         def merge_configuration
           configuration_update = ForemanDeployments::Configuration.new(:values => params[:values])
 
-          config = ForemanDeployments::Config::Configurator.new(@deployment.parsed_stack)
+          config = @deployment.configurator
           config.merge(@deployment.configuration, configuration_update)
           config.dump(@deployment.configuration)
 
@@ -62,7 +62,7 @@ module ForemanDeployments
         def replace_configuration
           new_configuration = ForemanDeployments::Configuration.new(:values => params[:values])
 
-          config = ForemanDeployments::Config::Configurator.new(@deployment.parsed_stack)
+          config = @deployment.configurator
           config.configure(new_configuration)
           config.dump(@deployment.configuration)
 
@@ -72,24 +72,16 @@ module ForemanDeployments
         api :GET, '/deployments/:id/', N_('Get information about a deployment')
         param :id, :identifier, :required => true
         def show
-          config = ForemanDeployments::Config::Configurator.new(@deployment.parsed_stack)
+          config = @deployment.configurator
           config.configure(@deployment.configuration)
 
-          # TODO: show deployment status (config, invalid, deploying, [reverting], deployed)
-          @validation_result = ForemanDeployments::Validation::Validator.validate(@deployment.parsed_stack)
+          @validation_result = @deployment.parsed_stack.validate
         end
 
         api :POST, '/deployments/:id/run/', N_('Start a deployment')
         param :id, :identifier, :required => true
         def run
-          # configure with user input
-          config = ForemanDeployments::Config::Configurator.new(@deployment.parsed_stack)
-          config.configure(@deployment.configuration)
-
-          # validate
-          ForemanDeployments::Validation::Validator.validate!(@deployment.parsed_stack)
-
-          ForemanTasks.async_task(Tasks::StackDeployAction, @deployment.parsed_stack)
+          @deployment.run
         end
 
         private
