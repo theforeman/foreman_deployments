@@ -21,6 +21,20 @@ Rails.application.routes.draw do
           post :configuration, :on => :member, :to => :merge_configuration
           post :run, :on => :member
         end
+
+        if SETTINGS[:organizations_enabled]
+          resources :organizations, :only => [] do
+            resources :stacks, :only => [:index]
+            resources :deployments, :only => [:index]
+          end
+        end
+
+        if SETTINGS[:locations_enabled]
+          resources :locations, :only => [] do
+            resources :stacks, :only => [:index]
+            resources :deployments, :only => [:index]
+          end
+        end
       end
     end
   end

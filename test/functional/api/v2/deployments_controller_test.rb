@@ -16,15 +16,16 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
   end
 
   setup do
-    @stack = ForemanDeployments::Stack.create(
+    @stack = ForemanDeployments::Stack.create!(
       :name => 'stack1',
       :definition => [
         'Task1: !task:FakeTask',
         '  param1: hardcoded',
         'Task2: !task:FakeTask'
-      ].join("\n")
+      ].join("\n"),
+      :organizations => [taxonomies(:organization1), taxonomies(:organization2)],
+      :locations => [taxonomies(:location1), taxonomies(:location2)]
     )
-    @deployment_params = { :name => 'A Deployment', :stack_id => @stack.id }
     @deployment = ForemanDeployments::Deployment.create(
       :name => 'Another deployment',
       :configuration => ForemanDeployments::Configuration.new(:stack => @stack)
@@ -37,6 +38,15 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
   end
 
   describe 'creating a deployment' do
+    setup do
+      @deployment_params = {
+        :name => 'A Deployment',
+        :stack_id => @stack.id,
+        :organization_id => taxonomies(:organization1).id,
+        :location_id => taxonomies(:location1).id
+      }
+    end
+
     test 'it creates a deployment' do
       assert_difference('ForemanDeployments::Deployment.count', 1) do
         post :create,  :deployment => @deployment_params
@@ -76,9 +86,48 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
   end
 
   describe 'listing deployments' do
+    setup do
+      @org_deployment = ForemanDeployments::Deployment.create!(
+        :name => 'deployment1',
+        :configuration => ForemanDeployments::Configuration.new(:stack => @stack),
+        :location_id => taxonomies(:location2).id,
+        :organization_id => taxonomies(:organization1).id
+      )
+      @loc_deployment = ForemanDeployments::Deployment.create!(
+        :name => 'deployment2',
+        :configuration => ForemanDeployments::Configuration.new(:stack => @stack),
+        :location_id => taxonomies(:location1).id,
+        :organization_id => taxonomies(:organization2).id
+      )
+      @both_deployment = ForemanDeployments::Deployment.create!(
+        :name => 'deployment3',
+        :configuration => ForemanDeployments::Configuration.new(:stack => @stack),
+        :location_id => taxonomies(:location1).id,
+        :organization_id => taxonomies(:organization1).id
+      )
+    end
+
     test 'it lists deployments' do
       get :index
       assert_response :success
+    end
+
+    test 'should get deployments for location only' do
+      get :index, :location_id => taxonomies(:location1).id
+      assert_response :success
+      assert_equal [@loc_deployment, @both_deployment], assigns(:deployments)
+    end
+
+    test 'should get deployments for organization only' do
+      get :index, :organization_id => taxonomies(:organization1).id
+      assert_response :success
+      assert_equal [@org_deployment, @both_deployment], assigns(:deployments)
+    end
+
+    test 'should get deployments for both location and organization' do
+      get :index, :organization_id => taxonomies(:organization1).id, :location_id => taxonomies(:location1).id
+      assert_response :success
+      assert_equal [@both_deployment], assigns(:deployments)
     end
   end
 

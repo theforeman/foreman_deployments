@@ -2,6 +2,8 @@ module ForemanDeployments
   module Api
     module V2
       class DeploymentsController < BaseController
+        include ::Api::TaxonomyScope
+
         before_filter :find_resource, :only => [:show, :replace_configuration, :merge_configuration, :run]
 
         rescue_from ForemanDeployments::Config::InvalidValueException, :with => :unprocessable_entity_error
@@ -29,11 +31,15 @@ module ForemanDeployments
         end
 
         api :GET, '/deployments/', N_('List deployments')
+        api :GET, '/locations/:location_id/deployments/', N_('List of deployments per location')
+        api :GET, '/organizations/:organization_id/deployments/', N_('List of deployments per organization')
+        param_group :taxonomy_scope, ::Api::V2::BaseController
+        param_group :search_and_pagination, ::Api::V2::BaseController
         def index
-          @deployments = resource_scope
+          @deployments = resource_scope_for_index
         end
 
-        api :PUT, '/deployments/:id/configuration/', N_('Merge a configuration update with current values')
+        api :POST, '/deployments/:id/configuration/', N_('Merge a configuration update with current values')
         param :id, :identifier, :required => true
         param :values, Hash,
               :required => true,

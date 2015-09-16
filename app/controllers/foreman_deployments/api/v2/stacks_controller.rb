@@ -2,6 +2,8 @@ module ForemanDeployments
   module Api
     module V2
       class StacksController < BaseController
+        include ::Api::TaxonomyScope
+
         before_filter :find_resource, :only => [:show, :update]
 
         def_param_group :stack do
@@ -33,8 +35,10 @@ module ForemanDeployments
         end
 
         api :GET, '/stacks/', N_('List saved stacks')
+        api :GET, '/locations/:location_id/stacks/', N_('List of stacks per location')
+        api :GET, '/organizations/:organization_id/stacks/', N_('List of stacks per organization')
         def index
-          @stacks = resource_scope
+          @stacks = resource_scope_for_index
         end
 
         api :GET, '/stacks/:id/', N_('Get information about a stack')

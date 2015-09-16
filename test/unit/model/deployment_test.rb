@@ -5,7 +5,9 @@ class DeploymentTest < ActiveSupport::TestCase
     setup do
       @stack = ForemanDeployments::Stack.create(
         :name => 'stack1',
-        :definition => 'SomeTask:!Task'
+        :definition => 'SomeTask:!Task',
+        :organizations => [taxonomies(:organization1)],
+        :locations => [taxonomies(:location1)]
       )
       @config = ForemanDeployments::Configuration.new(
         :description => 'config for deployment1',
@@ -13,7 +15,9 @@ class DeploymentTest < ActiveSupport::TestCase
       )
       @valid_params = {
         :name => 'deployment1',
-        :configuration => @config
+        :configuration => @config,
+        :organization => taxonomies(:organization1),
+        :location => taxonomies(:location1)
       }
     end
 
@@ -29,6 +33,26 @@ class DeploymentTest < ActiveSupport::TestCase
 
     test 'configuration must be present' do
       d = ForemanDeployments::Deployment.new(@valid_params.except(:configuration))
+      refute(d.valid?)
+    end
+
+    test 'organization must be present' do
+      d = ForemanDeployments::Deployment.new(@valid_params.except(:organization))
+      refute(d.valid?)
+    end
+
+    test "organization must be one of stack's orgs" do
+      d = ForemanDeployments::Deployment.new(@valid_params.merge(:organization => taxonomies(:organization2)))
+      refute(d.valid?)
+    end
+
+    test 'location must be present' do
+      d = ForemanDeployments::Deployment.new(@valid_params.except(:location))
+      refute(d.valid?)
+    end
+
+    test "organization must be one of stack's orgs" do
+      d = ForemanDeployments::Deployment.new(@valid_params.merge(:location => taxonomies(:location2)))
       refute(d.valid?)
     end
   end

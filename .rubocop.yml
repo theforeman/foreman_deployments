@@ -35,6 +35,9 @@ Style/ClassAndModuleChildren:
   Exclude:
     - 'test/**/*'
 
+Style/Lambda:
+  Enabled: false
+
 Style/GuardClause:
   Enabled: false
 
