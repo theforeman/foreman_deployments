@@ -18,26 +18,38 @@ module ForemanDeployments
         # Add permissions
         security_block :foreman_deployments do |map|
           map.permission :view_deployments,
-                         :"foreman_deployments/api/v2/deployments" => [:index, :show]
+                         { :'foreman_deployments/api/v2/deployments' => [:index, :show] },
+                         :resource_type => ForemanDeployments::Deployment.name
           map.permission :create_deployments,
-                         :"foreman_deployments/api/v2/deployments" => [:create]
-          map.permission :edit_deployments,
-                         :"foreman_deployments/api/v2/deployments" => [:update]
+                         { :'foreman_deployments/api/v2/deployments' => [:create,
+                                                                         :merge_configuration,
+                                                                         :replace_configuration]
+                         },
+                         :resource_type => ForemanDeployments::Deployment.name
+          map.permission :run_deployments,
+                         { :'foreman_deployments/api/v2/deployments' => [:run] },
+                         :resource_type => ForemanDeployments::Deployment.name
           map.permission :destroy_deployments,
-                         :"foreman_deployments/api/v2/deployments" => [:destroy]
+                         { :'foreman_deployments/api/v2/deployments' => [:destroy] },
+                         :resource_type => ForemanDeployments::Deployment.name
 
-          map.permission :view_foreman_deployments_stacks,
-                         :"foreman_deployments/api/v2/stacks" => [:index, :show, :export]
+          map.permission :view_stacks,
+                         { :'foreman_deployments/api/v2/stacks' => [:index, :show] },
+                         :resource_type => ForemanDeployments::Stack.name
           map.permission :create_stacks,
-                         :"foreman_deployments/api/v2/stacks" => [:create]
+                         { :'foreman_deployments/api/v2/stacks' => [:create] },
+                         :resource_type => ForemanDeployments::Stack.name
           map.permission :edit_stacks,
-                         :"foreman_deployments/api/v2/stacks" => [:update]
+                         { :'foreman_deployments/api/v2/stacks' => [:update] },
+                         :resource_type => ForemanDeployments::Stack.name
           map.permission :destroy_stacks,
-                         :"foreman_deployments/api/v2/stacks" => [:destroy]
+                         { :'foreman_deployments/api/v2/stacks' => [:destroy] },
+                         :resource_type => ForemanDeployments::Stack.name
         end
 
-        # Add a new role called 'Discovery' if it doesn't exist
-        # role "ForemanDeployments", [:view_foreman_deployments]
+        search_path_override('ForemanDeployments') do |resource|
+          "/#{resource.demodulize.underscore.pluralize}/auto_complete_search"
+        end
       end
     end
 

@@ -19,7 +19,9 @@ module ForemanDeployments
         def create
           deployment_params = params[:deployment]
 
-          stack = ForemanDeployments::Stack.find(deployment_params.delete(:stack_id)) if deployment_params[:stack_id]
+          if deployment_params[:stack_id]
+            stack = ForemanDeployments::Stack.authorized(:view_stacks).find(deployment_params.delete(:stack_id))
+          end
           deployment_params[:configuration] = ForemanDeployments::Configuration.new(:stack => stack)
 
           @deployment = ForemanDeployments::Deployment.new(deployment_params)
@@ -82,6 +84,19 @@ module ForemanDeployments
           ForemanDeployments::Validation::Validator.validate!(@deployment.parsed_stack)
 
           ForemanTasks.async_task(Tasks::StackDeployAction, @deployment.parsed_stack)
+        end
+
+        private
+
+        def action_permission
+          case params[:action]
+          when 'merge_configuration', 'replace_configuration'
+            'create'
+          when 'run'
+            'run'
+          else
+            super
+          end
         end
       end
     end
