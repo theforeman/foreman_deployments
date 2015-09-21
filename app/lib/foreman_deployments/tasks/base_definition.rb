@@ -52,7 +52,7 @@ module ForemanDeployments
         name.split('::').last
       end
 
-      def self.build(params)
+      def self.build(params = {})
         new(params)
       end
 

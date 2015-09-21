@@ -14,7 +14,7 @@ class CreationTaskDefinitionTest < ActiveSupport::TestCase
       assert_equal(ForemanDeployments::Tasks::HostCreationTaskDefinition, definition.class)
     end
 
-    test 'it returns instance of HostCreationTaskDefinition for other classes' do
+    test 'it returns instance of CreationTaskDefinition for other classes' do
       definition = definition_class.build('class' => 'Architecture')
       assert_equal(ForemanDeployments::Tasks::CreationTaskDefinition, definition.class)
     end

@@ -20,8 +20,6 @@ module ForemanDeployments
 
         if object.is_a? Host::Managed
           object_params['build'] ||= true
-          # Set attributes from a hostgroup
-          object.attributes = object.apply_inherited_attributes(object_params)
           # Set compute attributes from a compute profile
           if object.compute_resource_id && object.compute_profile_id
             profile_attributes = object.compute_resource.compute_profile_attributes_for(object.compute_profile_id)

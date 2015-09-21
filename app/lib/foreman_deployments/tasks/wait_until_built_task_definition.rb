@@ -18,7 +18,8 @@ module ForemanDeployments
         end
 
         def poll_external_task
-          # TODO: check the case when no host_id is sent
+          fail(_("'%s' is a required parameter") % 'host_id') unless input.key?('host_id')
+
           host = Host.find(input['host_id'])
           WaitUntilBuiltTaskDefinition.create_output(host, output)
           WaitUntilBuiltTaskDefinition.build_status(host)
@@ -30,7 +31,11 @@ module ForemanDeployments
       end
 
       def validate
-        ValidationResult.new
+        result = ForemanDeployments::Validation::ValidationResult.new([])
+        unless parameters.configured.key?('host_id')
+          result.messages << _("'%s' is a required parameter") % 'host_id'
+        end
+        result
       end
 
       def preliminary_output(_parameters)
