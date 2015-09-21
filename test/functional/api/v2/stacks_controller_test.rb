@@ -1,6 +1,8 @@
-require 'test_helper'
+require 'test_plugin_helper'
 
 class ForemanDeployments::Api::V2::StacksControllerTest < ActionController::TestCase
+  include RegistryStub
+
   class FakeTask < ForemanDeployments::Tasks::BaseDefinition
   end
 
@@ -11,8 +13,7 @@ class ForemanDeployments::Api::V2::StacksControllerTest < ActionController::Test
       '    host_id: 1'
     ].join("\n")
 
-    @registry = ForemanDeployments::Registry.new
-    ForemanDeployments.stubs(:registry).returns(@registry)
+    @registry = stub_registry
     @registry.register_task(FakeTask)
   end
 
@@ -99,23 +100,17 @@ class ForemanDeployments::Api::V2::StacksControllerTest < ActionController::Test
 
   describe 'listing stacks' do
     setup do
-      @stack1 = ForemanDeployments::Stack.create!(
-        :name => 'stack1',
-        :definition => 'Task1: !task:FakeTask',
-        :organizations => [taxonomies(:organization1)],
-        :locations => [taxonomies(:location1)]
+      @stack1 = FactoryGirl.create(:stack,
+                                   :organizations => [taxonomies(:organization1)],
+                                   :locations => [taxonomies(:location1)]
       )
-      @stack2 = ForemanDeployments::Stack.create!(
-        :name => 'stack2',
-        :definition => 'Task1: !task:FakeTask',
-        :organizations => [taxonomies(:organization1)],
-        :locations => [taxonomies(:location2)]
+      @stack2 = FactoryGirl.create(:stack,
+                                   :organizations => [taxonomies(:organization1)],
+                                   :locations => [taxonomies(:location2)]
       )
-      @stack3 = ForemanDeployments::Stack.create!(
-        :name => 'stack3',
-        :definition => 'Task1: !task:FakeTask',
-        :organizations => [taxonomies(:organization2)],
-        :locations => [taxonomies(:location2)]
+      @stack3 = FactoryGirl.create(:stack,
+                                   :organizations => [taxonomies(:organization2)],
+                                   :locations => [taxonomies(:location2)]
       )
     end
 
