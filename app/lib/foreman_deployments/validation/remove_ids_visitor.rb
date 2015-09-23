@@ -52,7 +52,7 @@ module ForemanDeployments
       end
 
       def multiple_references?(key, values)
-        key.to_s.end_with?('_ids') && values.all? { |v| v.is_a?(TaskReference) }
+        key.to_s.end_with?('_ids') && (values.is_a?(TaskReference) || values.all? { |v| v.is_a?(TaskReference) })
       end
     end
   end

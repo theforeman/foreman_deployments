@@ -15,10 +15,7 @@ class RemoveIdsVisitorTest < ActiveSupport::TestCase
     @visitor = ForemanDeployments::Validation::RemoveIdsVisitor.new
   end
 
-  test 'it turns id into object reference in parameters' do
-    test_resource = mock
-    test_resource.stubs(:id).returns(123)
-
+  test 'it turns id reference into object reference in parameters' do
     task2 = TestTask.new
 
     task2_ref = ForemanDeployments::TaskReference.new('task2', 'resource.id')
@@ -37,10 +34,26 @@ class RemoveIdsVisitorTest < ActiveSupport::TestCase
     assert_equal('resource', task1.parameters['test_resource'].output_key)
   end
 
-  test 'it turns array of ids into array of object references in parameters' do
-    test_resource = mock
-    test_resource.stubs(:id).returns(123)
+  test 'it turns single reference to multiple ids into an object reference' do
+    task2 = TestTask.new
 
+    task2_ref = ForemanDeployments::TaskReference.new('task2', 'resource.ids')
+    task2_ref.task = task2
+
+    task1 = TestTask.new(
+      :test_resource_ids => task2_ref
+    )
+
+    definition = ForemanDeployments::StackDefinition.new(
+      'task1' => task1,
+      'task2' => task2
+    )
+    definition.accept(@visitor)
+
+    assert_equal('resources', task1.parameters['test_resources'].output_key)
+  end
+
+  test 'it turns array of id references into array of object references in parameters' do
     task2 = TestTask.new
 
     task2_ref = ForemanDeployments::TaskReference.new('task2', 'resource.id')
@@ -56,6 +69,7 @@ class RemoveIdsVisitorTest < ActiveSupport::TestCase
     )
     definition.accept(@visitor)
 
+    assert_equal(1, task1.parameters['test_resources'].size)
     assert_equal('resource', task1.parameters['test_resources'][0].output_key)
   end
 
