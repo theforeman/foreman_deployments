@@ -14,7 +14,7 @@ module ForemanDeployments
         obj.valid?
         ForemanDeployments::Validation::ValidationResult.new(obj.errors.full_messages)
       rescue ActiveRecord::ActiveRecordError => e
-        ForemanDeployments::Validation::ValidationResult.new(e.message)
+        ForemanDeployments::Validation::ValidationResult.new([e.message])
       end
 
       def preliminary_output
