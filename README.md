@@ -3,12 +3,20 @@
 A plugin adding Foreman Multi-Host Deployment support.
 
 
+## Documentation
+
+* [Introduction](doc/introduction.md)
+* [How to write stacks](doc/writing_stacks.md)
+* [Create, configure and deploy a stack](doc/deployment_process.md)
+* Other media:
+  * [Development preview demo](https://www.youtube.com/watch?v=U5qtriQfu6A)
+
 ## Design documentation
 
-* [Design](doc/design.md)
-* [List of deployment tasks](doc/tasks.md)
-* [Examples and usecases](doc/examples.md)
-* [User interfaces](doc/user_interfaces.md)
+* [Design](doc/design/design.md)
+* [List of deployment tasks](doc/design/tasks.md)
+* [Examples and usecases](doc/design/examples.md)
+* [User interfaces](doc/design/user_interfaces.md)
 * Other sources:
   * [Redmine tracker](http://projects.theforeman.org/issues/10092)
   * [Deep dive](https://www.youtube.com/watch?v=ISQdESgmOqo) about the task-centric approach ([presentation](https://tstrachota.fedorapeople.org/slides/mhd_presentation/))
