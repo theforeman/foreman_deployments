@@ -16,14 +16,19 @@ module ForemanDeployments
 
         object_type = object_type.constantize if object_type.is_a? String
 
-        object = set_parameters(object_type.new, object_params)
+        initial_params = {
+          :interfaces_attributes => object_params.delete('interfaces_attributes') || {}
+        }
+
+        object = object_type.new(initial_params)
+        object = set_parameters(object, object_params)
 
         if object.is_a? Host::Managed
           object_params['build'] ||= true
           # Set compute attributes from a compute profile
           if object.compute_resource_id && object.compute_profile_id
             profile_attributes = object.compute_resource.compute_profile_attributes_for(object.compute_profile_id)
-            object.compute_attributes = profile_attributes.merge(object.compute_attributes)
+            object.compute_attributes = profile_attributes.merge(object.compute_attributes || {})
           end
           # Merge interfaces from a compute profile
           merge = InterfaceMerge.new

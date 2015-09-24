@@ -32,7 +32,7 @@ module ForemanDeployments
       end
 
       def self.build(*params)
-        new(params)
+        new(*params)
       end
     end
   end
