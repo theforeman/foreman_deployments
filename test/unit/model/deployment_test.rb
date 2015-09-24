@@ -1,14 +1,14 @@
 require 'test_plugin_helper'
 
 class DeploymentTest < ActiveSupport::TestCase
+  include RegistryStub
+
   class FakeTask < ForemanDeployments::Tasks::BaseDefinition; end
 
   setup do
-    @stack = ForemanDeployments::Stack.create(
-      :name => 'stack1',
-      :definition => 'SomeTask: !task:FakeTask',
-      :organizations => [taxonomies(:organization1)],
-      :locations => [taxonomies(:location1)]
+    @stack = FactoryGirl.build(:stack,
+                               :organizations => [taxonomies(:organization1)],
+                               :locations => [taxonomies(:location1)]
     )
     @config = ForemanDeployments::Configuration.new(
       :description => 'config for deployment1',
@@ -21,8 +21,7 @@ class DeploymentTest < ActiveSupport::TestCase
       :location => taxonomies(:location1)
     }
 
-    @registry = ForemanDeployments::Registry.new
-    ForemanDeployments.stubs(:registry).returns(@registry)
+    @registry = stub_registry
     @registry.register_task(FakeTask)
 
     @task = FactoryGirl.build(:foreman_task)
@@ -122,13 +121,13 @@ class DeploymentTest < ActiveSupport::TestCase
 
     test 'it plans a foreman task' do
       deployment = ForemanDeployments::Deployment.new(@valid_params)
-      deployment.configuration.set_config_for(stub(:task_id => 'SomeTask'), 'param1' => '1')
+      deployment.configuration.set_config_for(stub(:task_id => 'Task1'), 'param1' => '1')
       deployment.configuration.save
       deployment.parsed_stack.stubs(:validate!)
 
       ForemanTasks.expects(:async_task).with do |main_task, parsed_stack|
         assert_equal(ForemanDeployments::Tasks::StackDeployAction, main_task)
-        assert_equal({ 'param1' => '1' }, parsed_stack.tasks['SomeTask'].configuration)
+        assert_equal({ 'param1' => '1' }, parsed_stack.tasks['Task1'].configuration)
       end
 
       deployment.run
