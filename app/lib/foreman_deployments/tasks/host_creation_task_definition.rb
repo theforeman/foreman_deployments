@@ -17,7 +17,8 @@ module ForemanDeployments
         object_type = object_type.constantize if object_type.is_a? String
 
         initial_params = {
-          :interfaces_attributes => object_params.delete('interfaces_attributes') || {}
+          'interfaces_attributes' => object_params.delete('interfaces_attributes') || {},
+          'hostgroup_id' => object_params.delete('hostgroup_id')
         }
 
         object = object_type.new(initial_params)
