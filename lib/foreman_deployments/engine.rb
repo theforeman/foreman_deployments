@@ -4,7 +4,7 @@ require 'foreman_deployments/monkey_patches'
 
 module ForemanDeployments
   class Engine < ::Rails::Engine
-    config.autoload_paths += Dir["#{config.root}/app/**/"]
+    config.autoload_paths += Dir["#{config.root}/app/*/"]
     config.autoload_paths += ["#{config.root}/test/"]
 
     # Add any db migrations
