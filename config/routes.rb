@@ -1,6 +1,4 @@
 Rails.application.routes.draw do
-  resources :create_resources, module: 'ForemanDeployments'
-
   scope :module => :foreman_deployments do
     resources :deployments, :only => [] do
       get :auto_complete_search, :on => :collection

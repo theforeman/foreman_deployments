@@ -48,7 +48,7 @@ module ForemanDeployments
       protected
 
       def configuration_storage
-        @configuration_storage ||= {}
+        @configuration_storage ||= {}.with_indifferent_access
       end
 
       def configure_key(key, value, method)

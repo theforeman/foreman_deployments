@@ -7,7 +7,9 @@ module ForemanDeployments
     belongs_to :task, :class_name => 'ForemanTasks::Task'
 
     validates :name, :presence => true
-    validates :configuration,   :presence => true
+    validates :configuration, :presence => true
+
+    attr_accessible :name, :configuration, :task
 
     scoped_search :on => :id, :complete_value => false
     scoped_search :on => :name, :complete_value => true, :default_order => true
