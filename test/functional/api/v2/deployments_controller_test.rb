@@ -21,7 +21,7 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
     @stack = FactoryGirl.create(:stack,
                                 :organizations => [taxonomies(:organization1), taxonomies(:organization2)],
                                 :locations => [taxonomies(:location1), taxonomies(:location2)]
-    )
+                               )
     @deployment = FactoryGirl.create(:deployment, :with_taxonomy, :with_stack)
 
     @registry = stub_registry
@@ -82,15 +82,15 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
       @org_deployment = FactoryGirl.create(:deployment, :with_stack,
                                            :location_id => taxonomies(:location2).id,
                                            :organization_id => taxonomies(:organization1).id
-      )
+                                          )
       @loc_deployment = FactoryGirl.create(:deployment, :with_stack,
                                            :location_id => taxonomies(:location1).id,
                                            :organization_id => taxonomies(:organization2).id
-      )
+                                          )
       @both_deployment = FactoryGirl.create(:deployment, :with_stack,
                                             :location_id => taxonomies(:location1).id,
                                             :organization_id => taxonomies(:organization1).id
-      )
+                                           )
     end
 
     test 'it lists deployments' do
@@ -305,7 +305,7 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
                                            'Task1: !task:InvalidFakeTask',
                                            'Task2: !task:FakeTask'
                                          ].join("\n")
-      )
+                                        )
       deployment = FactoryGirl.create(:deployment, :with_stack_taxonomy, :stack => invalid_stack)
 
       post :run, :id => deployment.id

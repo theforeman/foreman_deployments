@@ -10,6 +10,8 @@ module ForemanDeployments
         belongs_to :location
         belongs_to :organization
 
+        attr_accessible :location, :location_id, :organization, :organization_id
+
         if SETTINGS[:locations_enabled]
           scoped_search :in => :location, :on => :title, :rename => :location, :complete_value => true
           scoped_search :on => :location_id, :complete_enabled => false, :only_explicit => true

@@ -26,7 +26,7 @@ class HashTest < ActiveSupport::TestCase
     test 'keeps preconfigured values untouched' do
       hash = ForemanDeployments::Config::Hash[:a => 1]
       hash.merge_configuration(:b => 2)
-      assert_equal({ :a => 1 }, hash)
+      assert_equal({ 'a' => 1 }, hash)
     end
 
     test 'can add additional preconfigured hashses' do
@@ -80,7 +80,7 @@ class HashTest < ActiveSupport::TestCase
     test 'keeps preconfigured values untouched' do
       hash = ForemanDeployments::Config::Hash[:a => 1]
       hash.configure(:b => 2)
-      assert_equal({ :a => 1 }, hash)
+      assert_equal({ 'a' => 1 }, hash)
     end
 
     test 'can add additional preconfigured hashses' do
