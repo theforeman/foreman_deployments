@@ -76,6 +76,7 @@ module ForemanDeployments
       ForemanDeployments.registry.register_task(ForemanDeployments::Tasks::CreationTaskDefinition)
       ForemanDeployments.registry.register_task(ForemanDeployments::Tasks::SearchTaskDefinition)
       ForemanDeployments.registry.register_task(ForemanDeployments::Tasks::WaitUntilBuiltTaskDefinition)
+      ForemanDeployments.registry.register_task(ForemanDeployments::Tasks::UpdateTaskDefinition)
       ForemanDeployments.registry.register_input(ForemanDeployments::Inputs::Value)
     end
 

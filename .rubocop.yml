@@ -2,7 +2,7 @@ inherit_from:
   - .rubocop_todo.yml
 
 AllCops:
-  RunRailsCops: true # always run the rails cops
+  RailsEnabled: true # always run the rails cops
   Exclude:
     - 'db/schema.rb'
 
