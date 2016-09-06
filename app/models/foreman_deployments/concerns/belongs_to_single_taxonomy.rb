@@ -4,13 +4,11 @@ module ForemanDeployments
       extend ActiveSupport::Concern
 
       included do
-        validates :organization_id, :presence => true, :if => lambda { SETTINGS[:organizations_enabled] }
-        validates :location_id, :presence => true, :if => lambda { SETTINGS[:locations_enabled] }
+        validates :organization_id, :presence => true, :if => -> { SETTINGS[:organizations_enabled] }
+        validates :location_id, :presence => true, :if => -> { SETTINGS[:locations_enabled] }
 
         belongs_to :location
         belongs_to :organization
-
-        attr_accessible :location, :location_id, :organization, :organization_id
 
         if SETTINGS[:locations_enabled]
           scoped_search :in => :location, :on => :title, :rename => :location, :complete_value => true
@@ -21,8 +19,8 @@ module ForemanDeployments
           scoped_search :on => :organization_id, :complete_enabled => false, :only_explicit => true
         end
 
-        scope :no_location,     lambda { where(:location_id => nil) }
-        scope :no_organization, lambda { where(:organization_id => nil) }
+        scope :no_location,     -> { where(:location_id => nil) }
+        scope :no_organization, -> { where(:organization_id => nil) }
 
         default_scope do
           where(taxonomy_conditions)

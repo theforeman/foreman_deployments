@@ -1,4 +1,4 @@
-require 'test_plugin_helper'
+require 'test_helper_deployments'
 
 class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController::TestCase
   include RegistryStub
@@ -11,9 +11,7 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
 
   class InvalidFakeTask < ForemanDeployments::Tasks::BaseDefinition
     def validate
-      ForemanDeployments::Validation::ValidationResult.new([
-        'Some validation error'
-      ])
+      ForemanDeployments::Validation::ValidationResult.new(['Some validation error'])
     end
   end
 

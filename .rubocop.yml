@@ -1,10 +1,21 @@
+# TODO: remove this file by either moving cops here or fixing code
 inherit_from:
   - .rubocop_todo.yml
 
 AllCops:
-  RunRailsCops: true # always run the rails cops
+  Include:
+    - 'app/views/api/**/*.rabl'
   Exclude:
     - 'db/schema.rb'
+    - 'node_modules/**/*'
+    - 'vendor/**/*'
+
+Rails:
+  Enabled: true
+
+# Don't prefer is_a? over kind_of?
+Style/ClassCheck:
+  Enabled: false
 
 # Don't enforce documentation
 Style/Documentation:
@@ -21,29 +32,6 @@ Metrics/ClassLength:
   Exclude:
     - 'test/**/*'
 
-# Force before_filter until upgrade to Rails 4
-Rails/ActionFilter:
-  EnforcedStyle: filter
-
-Metrics/MethodLength:
-  Max: 20
-
-Metrics/AbcSize:
-  Enabled: false
-
-Style/ClassAndModuleChildren:
+Performance/FixedSize:
   Exclude:
     - 'test/**/*'
-
-Style/Lambda:
-  Enabled: false
-
-Style/GuardClause:
-  Enabled: false
-
-Style/FormatString:
-  Enabled: false
-
-TrivialAccessors:
-  Enabled: true
-  ExactNameMatch: true

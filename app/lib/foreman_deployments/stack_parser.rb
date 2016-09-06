@@ -34,7 +34,7 @@ module ForemanDeployments
   end
 
   class StackParser
-    TAG_DOMAIN = 'deployments.theforeman.org,2015'
+    TAG_DOMAIN = 'deployments.theforeman.org,2015'.freeze
 
     def initialize(registry = nil)
       @registry = registry || ForemanDeployments.registry
