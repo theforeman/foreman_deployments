@@ -36,9 +36,9 @@ module ForemanDeployments
         result.empty? ? nil : result
       end
 
-      def transform!(&block)
+      def transform!
         keys.each do |key|
-          new_key, new_value = block.call(key, self[key])
+          new_key, new_value = yield(key, self[key])
           self[key] = new_value
           self[new_key] = delete(key) if new_key != key
         end

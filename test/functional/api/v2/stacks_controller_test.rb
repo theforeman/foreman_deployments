@@ -1,4 +1,4 @@
-require 'test_plugin_helper'
+require 'test_helper_deployments'
 
 class ForemanDeployments::Api::V2::StacksControllerTest < ActionController::TestCase
   include RegistryStub

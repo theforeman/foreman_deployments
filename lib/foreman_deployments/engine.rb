@@ -4,8 +4,9 @@ require 'foreman_deployments/monkey_patches'
 
 module ForemanDeployments
   class Engine < ::Rails::Engine
-    config.autoload_paths.concat(Dir["#{config.root}/app/*/"])
-    config.autoload_paths.concat(["#{config.root}/test/"])
+    config.autoload_paths += Dir["#{config.root}/app/controllers/concerns"]
+    # config.autoload_paths.concat(Dir["#{config.root}/app/**/"])
+    # config.autoload_paths.concat(Dir["#{config.root}/test/**/"])
 
     # Add any db migrations
     initializer 'foreman_deployments.load_app_instance_data' do |app|
@@ -14,7 +15,7 @@ module ForemanDeployments
       end
     end
 
-    initializer 'foreman_deployments.register_plugin', after: :finisher_hook do
+    initializer 'foreman_deployments.register_plugin', before: :finisher_hook do
       Foreman::Plugin.register :foreman_deployments do
         requires_foreman '>= 1.8'
 
@@ -24,7 +25,8 @@ module ForemanDeployments
                          { :'foreman_deployments/api/v2/deployments' => [:index, :show] },
                          :resource_type => ForemanDeployments::Deployment.name
           map.permission :create_deployments,
-                         { :'foreman_deployments/api/v2/deployments' => [:create,
+                         {
+                           :'foreman_deployments/api/v2/deployments' => [:create,
                                                                          :merge_configuration,
                                                                          :replace_configuration]
                          },

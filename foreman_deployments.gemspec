@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.files      = Dir['{app,config,db,doc,lib,locale}/**/*', 'LICENSE', 'Rakefile', 'README.md']
   s.test_files = Dir['test/**/*']
 
-  s.add_dependency 'foreman-tasks', "~> 0.7.3"
+  s.add_dependency 'foreman-tasks', "~> 0.7.3", ">= 0.7.20"
   s.add_dependency 'safe_yaml', "~> 1.0.0"
 
   s.add_development_dependency 'rubocop'

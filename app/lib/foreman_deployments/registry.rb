@@ -5,7 +5,7 @@ module ForemanDeployments
     ALLOWED_TYPES = {
       'task' => 'ForemanDeployments::Tasks::BaseDefinition',
       'input' => 'ForemanDeployments::Inputs::BaseInputDefinition'
-    }
+    }.freeze
 
     def initialize
       clear!

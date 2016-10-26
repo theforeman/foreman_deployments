@@ -3,8 +3,9 @@ module ForemanDeployments
     module V2
       class DeploymentsController < BaseController
         include ::Api::TaxonomyScope
+        include Parameters::Deployment
 
-        before_filter :find_resource, :only => [:show, :replace_configuration, :merge_configuration, :run]
+        before_action :find_resource, :only => [:show, :replace_configuration, :merge_configuration, :run]
 
         rescue_from ForemanDeployments::Config::InvalidValueException, :with => :unprocessable_entity_error
         rescue_from ForemanDeployments::Validation::ValidationError, :with => :unprocessable_entity_error
@@ -19,14 +20,13 @@ module ForemanDeployments
         api :POST, '/deployments/', N_('Create a deployment')
         param_group :deployment, :as => :create
         def create
-          deployment_params = params[:deployment]
-
-          if deployment_params[:stack_id]
-            stack = ForemanDeployments::Stack.authorized(:view_stacks).find(deployment_params.delete(:stack_id))
+          model_params = deployment_params.to_h.with_indifferent_access
+          if model_params[:stack_id]
+            stack = ForemanDeployments::Stack.authorized(:view_stacks).find(model_params.delete(:stack_id))
           end
-          deployment_params[:configuration] = ForemanDeployments::Configuration.new(:stack => stack)
+          model_params[:configuration] = ForemanDeployments::Configuration.new(:stack => stack)
 
-          @deployment = ForemanDeployments::Deployment.new(deployment_params)
+          @deployment = ForemanDeployments::Deployment.new(model_params)
           process_response @deployment.save
         end
 

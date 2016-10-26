@@ -5,9 +5,8 @@ module ForemanDeployments
     end
 
     def visit(subject)
-      if subject.is_a? ForemanDeployments::Tasks::BaseDefinition
-        visit_task_definition(subject)
-      end
+      return unless subject.is_a? ForemanDeployments::Tasks::BaseDefinition
+      visit_task_definition(subject)
     end
 
     protected

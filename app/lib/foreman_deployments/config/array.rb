@@ -38,9 +38,9 @@ module ForemanDeployments
         result.empty? ? nil : result
       end
 
-      def transform!(&block)
-        self.map! do |item|
-          block.call(item)
+      def transform!
+        map! do |item|
+          yield(item)
         end
         self
       end
