@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :stack, :class => ForemanDeployments::Stack do
     sequence(:name) { |n| "stack_#{n}" }
     definition [
@@ -9,10 +9,10 @@ FactoryGirl.define do
 
     trait :with_taxonomy do
       organizations do
-        [FactoryGirl.create(:organization)]
+        [FactoryBot.create(:organization)]
       end
       locations do
-        [FactoryGirl.create(:location)]
+        [FactoryBot.create(:location)]
       end
     end
   end
@@ -28,13 +28,13 @@ FactoryGirl.define do
 
     after(:build) do |deployment, evaluator|
       unless evaluator.stack.nil?
-        deployment.configuration = FactoryGirl.build(:configuration, :stack => evaluator.stack)
+        deployment.configuration = FactoryBot.build(:configuration, :stack => evaluator.stack)
       end
     end
 
     trait :with_stack do
       stack do
-        FactoryGirl.create(:stack)
+        FactoryBot.create(:stack)
       end
 
       after(:build) do |deployment, _evaluator|
@@ -52,10 +52,10 @@ FactoryGirl.define do
 
     trait :with_taxonomy do
       organization do
-        FactoryGirl.create(:organization)
+        FactoryBot.create(:organization)
       end
       location do
-        FactoryGirl.create(:location)
+        FactoryBot.create(:location)
       end
     end
   end

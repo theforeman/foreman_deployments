@@ -6,7 +6,7 @@ class DeploymentTest < ActiveSupport::TestCase
   class FakeTask < ForemanDeployments::Tasks::BaseDefinition; end
 
   setup do
-    @stack = FactoryGirl.build(:stack,
+    @stack = FactoryBot.build(:stack,
                                :organizations => [taxonomies(:organization1)],
                                :locations => [taxonomies(:location1)]
     )
@@ -24,7 +24,7 @@ class DeploymentTest < ActiveSupport::TestCase
     @registry = stub_registry
     @registry.register_task(FakeTask)
 
-    @task = FactoryGirl.build(:foreman_task)
+    @task = FactoryBot.build(:foreman_task)
     ForemanTasks.stubs(:async_task).returns(@task)
   end
 

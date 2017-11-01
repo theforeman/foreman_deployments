@@ -100,15 +100,15 @@ class ForemanDeployments::Api::V2::StacksControllerTest < ActionController::Test
 
   describe 'listing stacks' do
     setup do
-      @stack1 = FactoryGirl.create(:stack,
+      @stack1 = FactoryBot.create(:stack,
                                    :organizations => [taxonomies(:organization1)],
                                    :locations => [taxonomies(:location1)]
       )
-      @stack2 = FactoryGirl.create(:stack,
+      @stack2 = FactoryBot.create(:stack,
                                    :organizations => [taxonomies(:organization1)],
                                    :locations => [taxonomies(:location2)]
       )
-      @stack3 = FactoryGirl.create(:stack,
+      @stack3 = FactoryBot.create(:stack,
                                    :organizations => [taxonomies(:organization2)],
                                    :locations => [taxonomies(:location2)]
       )

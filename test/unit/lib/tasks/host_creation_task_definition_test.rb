@@ -10,7 +10,7 @@ class HostCreationTaskDefinitionTest < ActiveSupport::TestCase
 
   describe 'object creation' do
     test 'it applies parameters from a hostgroup' do
-      hostgroup = FactoryGirl.create(:hostgroup, :with_puppetclass, :with_puppet_orchestration)
+      hostgroup = FactoryBot.create(:hostgroup, :with_puppetclass, :with_puppet_orchestration)
 
       object = definition_class.create_object(
         'class' => 'Host::Managed',

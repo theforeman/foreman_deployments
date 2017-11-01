@@ -16,11 +16,11 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
   end
 
   setup do
-    @stack = FactoryGirl.create(:stack,
+    @stack = FactoryBot.create(:stack,
                                 :organizations => [taxonomies(:organization1), taxonomies(:organization2)],
                                 :locations => [taxonomies(:location1), taxonomies(:location2)]
                                )
-    @deployment = FactoryGirl.create(:deployment, :with_taxonomy, :with_stack)
+    @deployment = FactoryBot.create(:deployment, :with_taxonomy, :with_stack)
 
     @registry = stub_registry
     @registry.register_task(FakeTask)
@@ -77,15 +77,15 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
 
   describe 'listing deployments' do
     setup do
-      @org_deployment = FactoryGirl.create(:deployment, :with_stack,
+      @org_deployment = FactoryBot.create(:deployment, :with_stack,
                                            :location_id => taxonomies(:location2).id,
                                            :organization_id => taxonomies(:organization1).id
                                           )
-      @loc_deployment = FactoryGirl.create(:deployment, :with_stack,
+      @loc_deployment = FactoryBot.create(:deployment, :with_stack,
                                            :location_id => taxonomies(:location1).id,
                                            :organization_id => taxonomies(:organization2).id
                                           )
-      @both_deployment = FactoryGirl.create(:deployment, :with_stack,
+      @both_deployment = FactoryBot.create(:deployment, :with_stack,
                                             :location_id => taxonomies(:location1).id,
                                             :organization_id => taxonomies(:organization1).id
                                            )
@@ -287,7 +287,7 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
     end
 
     test 'it saves the task id' do
-      task = FactoryGirl.build(:foreman_task)
+      task = FactoryBot.build(:foreman_task)
       ForemanTasks.stubs(:async_task).returns(task)
 
       post :run, :id => @deployment.id
@@ -298,13 +298,13 @@ class ForemanDeployments::Api::V2::DeploymentsControllerTest < ActionController:
     end
 
     test 'it fails when one of the tasks is not valid' do
-      invalid_stack = FactoryGirl.create(:stack, :with_taxonomy,
+      invalid_stack = FactoryBot.create(:stack, :with_taxonomy,
                                          :definition => [
                                            'Task1: !task:InvalidFakeTask',
                                            'Task2: !task:FakeTask'
                                          ].join("\n")
                                         )
-      deployment = FactoryGirl.create(:deployment, :with_stack_taxonomy, :stack => invalid_stack)
+      deployment = FactoryBot.create(:deployment, :with_stack_taxonomy, :stack => invalid_stack)
 
       post :run, :id => deployment.id
       assert_response :unprocessable_entity
